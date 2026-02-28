@@ -1,0 +1,508 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% block title %}Ajouter un client - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        color: var(--text-dark);
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header h2:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px;
+    }
+
+    .btn-header-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-discard {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.75rem 1.5rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-discard:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-save {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-save:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+    }
+
+    .form-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .form-card:hover {
+        border-color: var(--primary-brown);
+    }
+
+    .form-card h5 {
+        color: var(--text-dark);
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-card h5 i {
+        color: var(--primary-brown);
+    }
+
+    .form-label {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid var(--cream-border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    /* ========== PHOTO UPLOAD ========== */
+    .photo-upload-container {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .photo-dropzone {
+        border: 2px dashed var(--cream-border);
+        border-radius: 12px;
+        padding: 2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: var(--cream-light);
+        margin-bottom: 1rem;
+    }
+
+    .photo-dropzone:hover {
+        border-color: var(--primary-brown);
+        background: white;
+    }
+
+    .photo-dropzone.drag-active {
+        border-color: var(--primary-brown);
+        background: white;
+        transform: scale(1.02);
+    }
+
+    .photo-dropzone i {
+        color: var(--cream-border);
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .photo-dropzone p {
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .photo-dropzone a {
+        color: var(--primary-brown);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .photo-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary-brown);
+        margin: 1rem auto;
+        display: none;
+    }
+
+    .photo-preview.visible {
+        display: block;
+    }
+
+    .remove-photo {
+        color: var(--danger-color);
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: inline-block;
+    }
+
+    .remove-photo:hover {
+        text-decoration: underline;
+    }
+
+    /* ========== OPTIONS ========== */
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--cream-border);
+        border-radius: 4px;
+        cursor: pointer;
+        accent-color: var(--primary-brown);
+        margin-right: 0.5rem;
+    }
+
+    .form-check-label {
+        color: var(--text-dark);
+        cursor: pointer;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .btn-header-group {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .btn-discard, .btn-save {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÊTE -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 page-header">
+        <div>
+            <h2 class="fw-bold mb-2">Ajouter un client</h2>
+            <p class="text-muted mb-0">Créez un nouveau compte client</p>
+        </div>
+        <div class="btn-header-group">
+            <a href="{% url 'client_list' %}" class="btn-discard">
+                <i class="fa-solid fa-xmark"></i> Annuler
+            </a>
+            <button type="submit" form="clientForm" class="btn-save">
+                <i class="fa-solid fa-floppy-disk"></i> Créer le client
+            </button>
+        </div>
+    </div>
+
+    <!-- FORMULAIRE -->
+    <form id="clientForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-4">
+            <!-- COLONNE GAUCHE (8 colonnes) -->
+            <div class="col-lg-8">
+                <!-- INFORMATIONS DE BASE -->
+                <div class="form-card">
+                    <h5>
+                        <i class="fa-solid fa-user"></i>
+                        Informations de base
+                    </h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nom d'utilisateur <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" placeholder="johndoe" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" placeholder="client@exemple.com" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Prénom</label>
+                            <input type="text" name="first_name" class="form-control" placeholder="John">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Nom</label>
+                            <input type="text" name="last_name" class="form-control" placeholder="Doe">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Téléphone</label>
+                            <input type="tel" name="phone" class="form-control" placeholder="+33 6 12 34 56 78">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Genre</label>
+                            <select name="gender" class="form-select">
+                                <option value="">Sélectionner...</option>
+                                <option value="M">Masculin</option>
+                                <option value="F">Féminin</option>
+                                <option value="O">Autre</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Date de naissance</label>
+                            <input type="date" name="birth_date" class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Mot de passe <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                            <small class="text-muted">Minimum 8 caractères</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADRESSE -->
+                <div class="form-card">
+                    <h5>
+                        <i class="fa-solid fa-location-dot"></i>
+                        Adresse
+                    </h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Adresse</label>
+                        <textarea name="address" class="form-control" rows="2" placeholder="Numéro et rue"></textarea>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Ville</label>
+                            <input type="text" name="city" class="form-control" placeholder="Paris">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Code postal</label>
+                            <input type="text" name="postal_code" class="form-control" placeholder="75001">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Pays</label>
+                            <select name="country" class="form-select">
+                                <option value="">Sélectionner...</option>
+                                <option value="France">France</option>
+                                <option value="Belgique">Belgique</option>
+                                <option value="Suisse">Suisse</option>
+                                <option value="Canada">Canada</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLONNE DROITE (4 colonnes) -->
+            <div class="col-lg-4">
+                <!-- PHOTO DE PROFIL -->
+                <div class="photo-upload-container">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fa-solid fa-camera" style="color: var(--primary-brown);"></i>
+                        Photo de profil
+                    </h5>
+
+                    <div id="photoDrop" class="photo-dropzone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p>
+                            Déposez une photo ici ou <a href="#" id="browseFiles">parcourez</a>
+                        </p>
+                        <small class="text-muted">Format: JPG, PNG (max 2 Mo)</small>
+                        <input type="file" id="photoInput" name="photo" accept="image/*" hidden>
+                    </div>
+
+                    <img id="photoPreview" class="photo-preview" alt="Aperçu">
+
+                    <a href="#" id="removePhoto" class="remove-photo" style="display: none;">
+                        <i class="fa-solid fa-trash-can me-1"></i> Supprimer la photo
+                    </a>
+                </div>
+
+                <!-- OPTIONS -->
+                <div class="form-card mt-4">
+                    <h5>
+                        <i class="fa-solid fa-gear"></i>
+                        Options
+                    </h5>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" name="is_active" id="isActive" checked>
+                        <label class="form-check-label" for="isActive">
+                            <i class="fa-solid fa-circle-check me-1" style="color: var(--primary-brown);"></i>
+                            Activer le compte immédiatement
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" name="newsletter" id="newsletter">
+                        <label class="form-check-label" for="newsletter">
+                            <i class="fa-solid fa-envelope me-1" style="color: var(--primary-brown);"></i>
+                            Abonné à la newsletter
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="is_vip" id="isVip">
+                        <label class="form-check-label" for="isVip">
+                            <i class="fa-solid fa-crown me-1" style="color: var(--primary-brown);"></i>
+                            Marquer comme VIP
+                        </label>
+                    </div>
+                </div>
+
+                <!-- NOTES -->
+                <div class="form-card">
+                    <h5>
+                        <i class="fa-solid fa-note-sticky"></i>
+                        Notes
+                    </h5>
+                    <textarea name="notes" class="form-control" rows="3" placeholder="Ajouter une note sur ce client..."></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        /* ========== UPLOAD PHOTO ========== */
+        const dropzone = document.getElementById('photoDrop');
+        const fileInput = document.getElementById('photoInput');
+        const preview = document.getElementById('photoPreview');
+        const browseBtn = document.getElementById('browseFiles');
+        const removeBtn = document.getElementById('removePhoto');
+
+        // Ouvrir le sélecteur de fichiers
+        if (browseBtn) {
+            browseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                fileInput.click();
+            });
+        }
+
+        if (dropzone) {
+            dropzone.addEventListener('click', () => fileInput.click());
+        }
+
+        // Gérer le changement de fichier
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    showPreview(this.files[0]);
+                }
+            });
+        }
+
+        // Drag & Drop
+        if (dropzone) {
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('drag-active');
+            });
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('drag-active');
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('drag-active');
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    fileInput.files = e.dataTransfer.files;
+                    showPreview(e.dataTransfer.files[0]);
+                }
+            });
+        }
+
+        // Afficher l'aperçu
+        function showPreview(file) {
+            if (!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.classList.add('visible');
+                removeBtn.style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Supprimer la photo
+        if (removeBtn) {
+            removeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                fileInput.value = '';
+                preview.src = '';
+                preview.classList.remove('visible');
+                removeBtn.style.display = 'none';
+            });
+        }
+    });
+</script>
+{% endblock %}

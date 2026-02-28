@@ -1,0 +1,1048 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+{% block title %}{{ prod.name }}{% endblock title %}
+{% block style %}
+<style>
+    /* Variables de couleurs */
+    :root {
+        --cream-primary: #F7F3E9;
+        --cream-dark: #E8E2D1;
+        --cream-darker: #D4C9A8;
+        --accent-brown: #A67C52;
+        --accent-brown-dark: #8B5A3C;
+        --text-dark: #5D4037;
+        --text-light: #8D6E63;
+        --cream-light: #FDFBF5;
+    }
+
+    /* Page principale */
+    .product-detail-page {
+        background: linear-gradient(135deg, var(--cream-primary) 0%, var(--cream-light) 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    /* Fil d'Ariane */
+    .breadcrumb-nav {
+        background: white;
+        border: 1px solid var(--cream-darker);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .breadcrumb-link {
+        color: var(--accent-brown);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .breadcrumb-link:hover {
+        color: var(--accent-brown-dark);
+    }
+
+    .breadcrumb-separator {
+        color: var(--text-light);
+    }
+
+    .breadcrumb-current {
+        color: var(--text-dark);
+        font-weight: 600;
+    }
+
+    /* Carte principale */
+    .product-card {
+        background: white;
+        border: 1px solid var(--cream-darker);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    /* Section images */
+    .images-section {
+        background: var(--cream-light);
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .main-image-container {
+        position: relative;
+        background: white;
+        border: 2px solid var(--cream-darker);
+        border-radius: 16px;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+        overflow: hidden;
+    }
+
+    #main-image {
+        max-width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+        transition: transform 0.5s ease;
+    }
+
+    #main-image:hover {
+        transform: scale(1.05);
+    }
+
+    /* Badge promo */
+    .promo-badge {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: #dc3545;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Miniatures */
+    .thumbnails-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .thumbnail {
+        width: 80px;
+        height: 80px;
+        border: 2px solid var(--cream-darker);
+        border-radius: 12px;
+        padding: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+        overflow: hidden;
+    }
+
+    .thumbnail:hover {
+        border-color: var(--accent-brown);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(166, 124, 82, 0.2);
+    }
+
+    .thumbnail.active {
+        border-color: var(--accent-brown);
+        border-width: 3px;
+    }
+
+    .thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    /* Section infos produit */
+    .product-info-section {
+        padding: 2.5rem;
+    }
+
+    /* Badge marque */
+    .brand-badge {
+        background: linear-gradient(135deg, var(--accent-brown) 0%, var(--accent-brown-dark) 100%);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    /* Titre produit */
+    .product-title {
+        color: var(--text-dark);
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.3;
+    }
+
+    /* Note et avis */
+    .rating-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--cream-darker);
+    }
+
+    .stars {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .star {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+
+    .rating-text {
+        color: var(--text-light);
+        font-size: 0.95rem;
+    }
+
+    .reviews-count {
+        color: var(--accent-brown);
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .reviews-count:hover {
+        text-decoration: underline;
+    }
+
+    /* Prix */
+    .price-section {
+        background: var(--cream-light);
+        border: 2px solid var(--cream-darker);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .price-row {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .current-price {
+        color: var(--accent-brown);
+        font-size: 2.5rem;
+        font-weight: 900;
+    }
+
+    .original-price {
+        color: var(--text-light);
+        font-size: 1.3rem;
+        text-decoration: line-through;
+    }
+
+    .discount-badge {
+        background: #dc3545;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .savings-text {
+        color: #28a745;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* Description */
+    .description-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: var(--text-dark);
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: var(--accent-brown);
+    }
+
+    .description-text {
+        color: var(--text-light);
+        line-height: 1.8;
+        font-size: 1rem;
+    }
+
+    /* Stock indicator */
+    .stock-section {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stock-icon {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #28a745;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.1); }
+    }
+
+    .stock-text {
+        color: #155724;
+        font-weight: 600;
+    }
+
+    /* Sélection taille */
+    .size-section {
+        margin-bottom: 2rem;
+    }
+
+    .size-options {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .size-option {
+        position: relative;
+    }
+
+    .size-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .size-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 50px;
+        height: 50px;
+        padding: 0 1rem;
+        border: 2px solid var(--cream-darker);
+        border-radius: 10px;
+        background: white;
+        color: var(--text-dark);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .size-option input:checked + .size-label {
+        background: var(--accent-brown);
+        border-color: var(--accent-brown);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .size-label:hover {
+        border-color: var(--accent-brown);
+        transform: translateY(-2px);
+    }
+
+    /* Quantité */
+    .quantity-section {
+        margin-bottom: 2rem;
+    }
+
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .quantity-controls {
+        display: flex;
+        border: 2px solid var(--cream-darker);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .quantity-btn {
+        background: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+        color: var(--accent-brown);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .quantity-btn:hover {
+        background: var(--accent-brown);
+        color: white;
+    }
+
+    .quantity-input {
+        width: 60px;
+        height: 45px;
+        border: none;
+        border-left: 2px solid var(--cream-darker);
+        border-right: 2px solid var(--cream-darker);
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-dark);
+    }
+
+    .quantity-input:focus {
+        outline: none;
+    }
+
+    /* Boutons d'action */
+    .actions-section {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+
+    .btn-add-cart {
+        flex: 1;
+        min-width: 200px;
+        background: var(--accent-brown);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .btn-add-cart:hover {
+        background: var(--accent-brown-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.3);
+    }
+
+    .btn-icon-action {
+        width: 55px;
+        height: 55px;
+        border: 2px solid var(--cream-darker);
+        border-radius: 12px;
+        background: white;
+        color: var(--accent-brown);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .btn-icon-action:hover {
+        background: var(--accent-brown);
+        border-color: var(--accent-brown);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .btn-icon-action.active {
+        background: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    /* Informations additionnelles */
+    .info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .info-card {
+        background: var(--cream-light);
+        border: 1px solid var(--cream-darker);
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(166, 124, 82, 0.1);
+    }
+
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--accent-brown);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-title {
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-text {
+        color: var(--text-light);
+        font-size: 0.85rem;
+    }
+
+    /* Section onglets */
+    .tabs-section {
+        margin-top: 3rem;
+        background: white;
+        border: 1px solid var(--cream-darker);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .tabs-header {
+        display: flex;
+        background: var(--cream-light);
+        border-bottom: 2px solid var(--cream-darker);
+    }
+
+    .tab-btn {
+        flex: 1;
+        padding: 1.25rem;
+        border: none;
+        background: transparent;
+        color: var(--text-light);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .tab-btn:hover {
+        color: var(--accent-brown);
+    }
+
+    .tab-btn.active {
+        color: var(--accent-brown);
+    }
+
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--accent-brown);
+    }
+
+    .tabs-content {
+        padding: 2rem;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .product-title {
+            font-size: 1.5rem;
+        }
+
+        .current-price {
+            font-size: 2rem;
+        }
+
+        .actions-section {
+            flex-direction: column;
+        }
+
+        .btn-add-cart {
+            width: 100%;
+        }
+
+        .info-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .tabs-header {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-page">
+    <header>{% include "core/header.html" %}</header>
+    
+    <main class="container">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+            <div class="alert alert-dismissible fade show {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Fil d'Ariane -->
+        <nav class="breadcrumb-nav">
+            <a href="{% url 'Home' %}" class="breadcrumb-link">
+                <i class="fas fa-home"></i> Accueil
+            </a>
+            <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+            <a href="{% url 'category' prod.category.slug %}" class="breadcrumb-link">
+                {{ prod.category.name }}
+            </a>
+            <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+            <span class="breadcrumb-current">{{ prod.name }}</span>
+        </nav>
+
+        <!-- Carte produit principale -->
+        <div class="product-card">
+            <div class="row g-0">
+                <!-- Section Images -->
+                <div class="col-lg-6">
+                    <div class="images-section">
+                        <!-- Image principale -->
+                        <div class="main-image-container">
+                            <div class="promo-badge">-40% OFF</div>
+                            {% for img in images %}
+                                {% if img.is_main %}
+                                    <img id="main-image" src="{{ img.image.url }}" alt="{{ prod.name }}">
+                                {% endif %}
+                            {% empty %}
+                                <img id="main-image" src="{% static 'image/logo/placehoder.png' %}" alt="{{ prod.name }}">
+                            {% endfor %}
+                        </div>
+
+                        <!-- Miniatures -->
+                        <div class="thumbnails-container">
+                            {% for img in images %}
+                            <div class="thumbnail {% if img.is_main %}active{% endif %}" onclick="changeImage(this, '{{ img.image.url }}')">
+                                <img src="{{ img.image.url }}" alt="Miniature">
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Informations -->
+                <div class="col-lg-6">
+                    <div class="product-info-section">
+                        <!-- Badge marque -->
+                        <div class="brand-badge">
+                            <i class="fas fa-award"></i> {{ prod.brand.name }}
+                        </div>
+
+                        <!-- Titre -->
+                        <h1 class="product-title">{{ prod.name }}</h1>
+
+                        <!-- Note et avis -->
+                        <div class="rating-section">
+                            <div class="stars">
+                                {% with avg_rating=prod.get_average_rating %}
+                                    {% for i in "12345" %}
+                                        {% if i|add:0 <= avg_rating %}
+                                            <i class="fas fa-star star"></i>
+                                        {% elif i|add:0 == avg_rating|add:0.5 %}
+                                            <i class="fas fa-star-half-alt star"></i>
+                                        {% else %}
+                                            <i class="far fa-star star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </div>
+                            <span class="rating-text">{{ prod.get_average_rating }}/5</span>
+                            <a href="#reviews-tab" class="reviews-count">({{ prod.get_reviews_count }} {% trans "avis" %})</a>
+                        </div>
+
+                        <!-- Prix -->
+                        <div class="price-section">
+                            <div class="price-row">
+                                <div class="current-price">{{ prod.price|floatformat:2 }} CFA</div>
+                                <div class="original-price">{{ prod.price|add:200|floatformat:2 }} CFA</div>
+                                <div class="discount-badge">-40%</div>
+                            </div>
+                            <div class="savings-text mt-2">
+                                <i class="fas fa-tags"></i> {% trans "Vous économisez 200 CFA !" %}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="description-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-info-circle"></i>
+                                Description
+                            </h3>
+                            <p class="description-text">{{ prod.description }}</p>
+                        </div>
+
+                        <!-- Stock -->
+                        <div class="stock-section">
+                            <div class="stock-icon"></div>
+                            <span class="stock-text">
+                                <i class="fas fa-check-circle"></i> En stock - {{ prod.stock }} unités disponibles
+                            </span>
+                        </div>
+
+                        <!-- Sélection taille -->
+                        <div class="size-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-ruler"></i>
+                                Choisir une taille
+                            </h3>
+                            <div class="size-options">
+                                <label class="size-option">
+                                    <input type="radio" name="size" value="S" checked>
+                                    <span class="size-label">S</span>
+                                </label>
+                                <label class="size-option">
+                                    <input type="radio" name="size" value="M">
+                                    <span class="size-label">M</span>
+                                </label>
+                                <label class="size-option">
+                                    <input type="radio" name="size" value="L">
+                                    <span class="size-label">L</span>
+                                </label>
+                                <label class="size-option">
+                                    <input type="radio" name="size" value="XL">
+                                    <span class="size-label">XL</span>
+                                </label>
+                                <label class="size-option">
+                                    <input type="radio" name="size" value="XXL">
+                                    <span class="size-label">XXL</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Quantité -->
+                        <div class="quantity-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-shopping-basket"></i>
+                                Quantité
+                            </h3>
+                            <div class="quantity-selector">
+                                <div class="quantity-controls">
+                                    <button class="quantity-btn" onclick="decreaseQuantity()">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="{{ prod.stock }}">
+                                    <button class="quantity-btn" onclick="increaseQuantity()">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="actions-section">
+                            <button class="btn-add-cart" data-product-id="{{ prod.id }}" data-quantity="1">
+                                <i class="fas fa-cart-plus me-1"></i>
+                                {% trans "Ajouter au panier" %}
+                            </button>
+
+                            <button class="btn-icon-action" onclick="toggleWishlist(this)" data-fav-url="{% url 'product_favorite' prod.slug %}" title="Ajouter aux favoris">
+                                {% if is_favorite %}
+                                    <i class="fas fa-heart" style="color: #e25555"></i>
+                                {% else %}
+                                    <i class="far fa-heart"></i>
+                                {% endif %}
+                            </button>
+                            <button class="btn-icon-action" title="Partager">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+
+                        <!-- Informations additionnelles -->
+                        <div class="info-cards">
+                            <div class="info-card">
+                                <div class="info-icon">
+                                    <i class="fas fa-shipping-fast"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-title">Livraison rapide</div>
+                                    <div class="info-text">2-3 jours ouvrés</div>
+                                </div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-icon">
+                                    <i class="fas fa-undo"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-title">Retours gratuits</div>
+                                    <div class="info-text">30 jours</div>
+                                </div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-title">Garantie</div>
+                                    <div class="info-text">2 ans</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section onglets -->
+        <div class="tabs-section">
+                <div class="tabs-header">
+                <button class="tab-btn active" onclick="openTab(event, 'description-tab')">
+                    <i class="fas fa-info-circle"></i> Description détaillée
+                </button>
+                <button class="tab-btn" onclick="openTab(event, 'specs-tab')">
+                    <i class="fas fa-list"></i> Caractéristiques
+                </button>
+                <button class="tab-btn" onclick="openTab(event, 'reviews-tab')">
+                    <i class="fas fa-star"></i> {% trans "Avis" %} ({{ prod.get_reviews_count }})
+                </button>
+            </div>
+            <div class="tabs-content">
+                <div id="description-tab" class="tab-pane active">
+                    <h3 class="section-title">Description complète</h3>
+                    <p class="description-text">{{ prod.description }}</p>
+                </div>
+                <div id="specs-tab" class="tab-pane">
+                    <h3 class="section-title">Spécifications techniques</h3>
+                    <p class="description-text">Marque: {{ prod.brand.name }}</p>
+                    <p class="description-text">Catégorie: {{ prod.category.name }}</p>
+                    <p class="description-text">Stock: {{ prod.stock }} unités</p>
+                </div>
+                <div id="reviews-tab" class="tab-pane">
+                    <h3 class="section-title">{% trans "Avis clients" %}</h3>
+
+                    <!-- Liste des avis -->
+                    {% if reviews.exists %}
+                        <div class="reviews-list mb-4">
+                            {% for rev in reviews %}
+                                <div class="review-item border rounded p-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="review-author fw-semibold">{{ rev.user.first_name|default:rev.user.username }}</div>
+                                        <div class="review-rating">
+                                            {% for i in "12345" %}
+                                                {% if i|add:0 <= rev.rating %}
+                                                    <i class="fas fa-star" style="color: #f5c150;"></i>
+                                                {% else %}
+                                                    <i class="far fa-star" style="color: #ccc;"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% if rev.comment %}
+                                    <p class="mb-1">{{ rev.comment }}</p>
+                                    {% endif %}
+                                    <small class="text-muted">{{ rev.created_at|date:"d M Y H:i" }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="description-text">Aucun avis pour le moment. Soyez le premier à laisser un avis !</p>
+                    {% endif %}
+
+                    <!-- Formulaire d'avis -->
+                    <div class="review-form mt-4">
+                        {% if request.user.is_authenticated %}
+                        <form method="POST" action="" id="reviewForm">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Votre note</label>
+                                <div>
+                                    <label class="me-2"><input type="radio" name="rating" value="5" checked> 5</label>
+                                    <label class="me-2"><input type="radio" name="rating" value="4"> 4</label>
+                                    <label class="me-2"><input type="radio" name="rating" value="3"> 3</label>
+                                    <label class="me-2"><input type="radio" name="rating" value="2"> 2</label>
+                                    <label class="me-2"><input type="radio" name="rating" value="1"> 1</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Votre avis</label>
+                                <textarea id="comment" name="comment" rows="4" class="form-control" placeholder="Racontez votre expérience..."></textarea>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary">Envoyer l'avis</button>
+                            </div>
+                        </form>
+                        {% else %}
+                            <p>Vous devez <a href="{% url 'signin' %}">vous connecter</a> pour laisser un avis.</p>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {% include "cart/modal.html" %}
+
+    <footer class="mt-5">{% include "core/footer.html" %}</footer>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    // Changer l'image principale
+    function changeImage(thumbnail, imageUrl) {
+        const mainImage = document.getElementById('main-image');
+        mainImage.style.opacity = '0';
+        
+        setTimeout(() => {
+            mainImage.src = imageUrl;
+            mainImage.style.opacity = '1';
+        }, 200);
+
+        // Mettre à jour la miniature active
+        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+        thumbnail.classList.add('active');
+    }
+
+    // Gérer la quantité
+    function increaseQuantity() {
+        const input = document.getElementById('quantity');
+        const max = parseInt(input.max);
+        if (parseInt(input.value) < max) {
+            input.value = parseInt(input.value) + 1;
+        }
+    }
+
+    function decreaseQuantity() {
+        const input = document.getElementById('quantity');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+        }
+    }
+
+    // Toggle favoris (AJAX)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function toggleWishlist(btn) {
+        const url = btn.getAttribute('data-fav-url');
+        const icon = btn.querySelector('i');
+        const csrftoken = getCookie('csrftoken');
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({})
+        }).then(resp => {
+            if (resp.status === 403) {
+                // not authenticated
+                window.location.href = "{% url 'signin' %}?next=" + encodeURIComponent(window.location.pathname);
+                return null;
+            }
+            return resp.json();
+        }).then(data => {
+            if (!data) return;
+            if (data.status === 'added') {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                btn.classList.add('active');
+            } else if (data.status === 'removed') {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                btn.classList.remove('active');
+            }
+            // Optionally update favorites counter elsewhere
+        }).catch(err => {
+            console.error('Error toggling favorite', err);
+        });
+    }
+
+    // Gérer les onglets
+    function openTab(evt, tabName) {
+        // Cacher tous les onglets
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        tabPanes.forEach(pane => pane.classList.remove('active'));
+
+        // Désactiver tous les boutons
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => btn.classList.remove('active'));
+
+        // Afficher l'onglet sélectionné
+        document.getElementById(tabName).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // Animation au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        const elements = document.querySelectorAll('.product-card, .tabs-section');
+        elements.forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            setTimeout(() => {
+                el.style.transition = 'all 0.6s ease';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+    });
+</script>
+
+{% endblock %}

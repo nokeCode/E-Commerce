@@ -1,0 +1,480 @@
+{% extends 'custumAdmin/base_admin.html' %}
+{% block title %}Apparence - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+    }
+
+    /* ========== EN-TÊTE ========== */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 2rem;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header h1:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px;
+    }
+
+    .page-header p {
+        color: var(--text-muted);
+        margin-top: 1rem;
+    }
+
+    /* ========== CARTE ========== */
+    .card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* ========== FORMULAIRES ========== */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid var(--cream-border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    .form-control-color {
+        width: 100%;
+        height: 50px;
+        padding: 0.5rem;
+    }
+
+    /* ========== APERÇU COULEUR ========== */
+    .color-preview {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        border: 2px solid var(--cream-border);
+        margin-top: 0.5rem;
+    }
+
+    /* ========== UPLOAD FICHIER ========== */
+    .file-upload-container {
+        border: 2px dashed var(--cream-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        background: var(--cream-light);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-container:hover {
+        border-color: var(--primary-brown);
+        background: white;
+    }
+
+    .file-upload-container i {
+        font-size: 2rem;
+        color: var(--cream-border);
+        margin-bottom: 0.5rem;
+    }
+
+    .file-preview {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--cream-light);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .file-preview img {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 2px solid var(--cream-border);
+    }
+
+    .file-preview-info {
+        flex: 1;
+    }
+
+    .file-preview-name {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .file-preview-size {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .btn-remove-file {
+        color: var(--danger-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-remove-file:hover {
+        transform: scale(1.2);
+    }
+
+    /* ========== BOUTON ========== */
+    .btn-save {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn-save:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+    }
+
+    /* ========== THÈMES ========== */
+    .theme-option {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 2px solid var(--cream-border);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
+    }
+
+    .theme-option:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+    }
+
+    .theme-option.selected {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+    }
+
+    .theme-preview {
+        width: 60px;
+        height: 40px;
+        border-radius: 8px;
+    }
+
+    .theme-preview.light {
+        background: white;
+        border: 2px solid var(--cream-border);
+    }
+
+    .theme-preview.dark {
+        background: #2d2d2d;
+        border: 2px solid #444;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÊTE -->
+    <div class="page-header">
+        <h1>Apparence du site</h1>
+        <p>Personnalisez les couleurs et le thème de votre interface d'administration</p>
+    </div>
+
+    <!-- CARTE PRINCIPALE -->
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" id="appearanceForm">
+                {% csrf_token %}
+
+                <!-- Thème -->
+                <div class="form-group">
+                    <label class="form-label">Thème</label>
+                    <div id="themeOptions">
+                        <label class="theme-option {% if appearance.theme == 'light' %}selected{% endif %}">
+                            <input type="radio" name="theme" value="light" {% if appearance.theme == 'light' %}checked{% endif %} hidden>
+                            <div class="theme-preview light"></div>
+                            <div>
+                                <strong>Thème Clair</strong>
+                                <p class="text-muted small mb-0">Fond clair, texte foncé</p>
+                            </div>
+                            {% if appearance.theme == 'light' %}
+                                <i class="fas fa-check-circle ms-auto" style="color: var(--primary-brown);"></i>
+                            {% endif %}
+                        </label>
+
+                        <label class="theme-option {% if appearance.theme == 'dark' %}selected{% endif %}">
+                            <input type="radio" name="theme" value="dark" {% if appearance.theme == 'dark' %}checked{% endif %} hidden>
+                            <div class="theme-preview dark"></div>
+                            <div>
+                                <strong>Thème Sombre</strong>
+                                <p class="text-muted small mb-0">Fond sombre, texte clair</p>
+                            </div>
+                            {% if appearance.theme == 'dark' %}
+                                <i class="fas fa-check-circle ms-auto" style="color: var(--primary-brown);"></i>
+                            {% endif %}
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Couleur principale -->
+                <div class="form-group">
+                    <label class="form-label">Couleur principale</label>
+                    <div class="d-flex gap-3 align-items-center">
+                        <input type="color" name="primary_color" class="form-control form-control-color" 
+                               value="{{ appearance.primary_color|default:'#A67C52' }}">
+                        <div class="color-preview" style="background-color: {{ appearance.primary_color|default:'#A67C52' }};"></div>
+                    </div>
+                    <small class="text-muted">Cette couleur sera utilisée pour les boutons et accents</small>
+                </div>
+
+                <!-- Favicon -->
+                <div class="form-group">
+                    <label class="form-label">Favicon</label>
+                    
+                    <div id="faviconDrop" class="file-upload-container">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Déposez votre favicon ici ou cliquez pour parcourir</p>
+                        <small class="text-muted">Format: ICO, PNG (16x16 ou 32x32 pixels)</small>
+                        <input type="file" id="faviconInput" name="favicon" accept=".ico,image/png" hidden>
+                    </div>
+
+                    {% if appearance.favicon %}
+                    <div class="file-preview" id="currentFavicon">
+                        <img src="{{ appearance.favicon.url }}" alt="Favicon actuel">
+                        <div class="file-preview-info">
+                            <div class="file-preview-name">Favicon actuel</div>
+                            <div class="file-preview-size">{{ appearance.favicon.size|filesizeformat }}</div>
+                        </div>
+                        <i class="fas fa-times btn-remove-file" onclick="removeCurrentFavicon()"></i>
+                    </div>
+                    {% endif %}
+
+                    <div id="faviconPreview" class="file-preview" style="display: none;">
+                        <img id="faviconPreviewImg" src="" alt="Nouveau favicon">
+                        <div class="file-preview-info">
+                            <div class="file-preview-name" id="faviconPreviewName"></div>
+                            <div class="file-preview-size" id="faviconPreviewSize"></div>
+                        </div>
+                        <i class="fas fa-times btn-remove-file" onclick="removeNewFavicon()"></i>
+                    </div>
+                </div>
+
+                <!-- Aperçu en direct -->
+                <div class="form-group mt-4 p-3" style="background: var(--cream-light); border-radius: 12px;">
+                    <h6 class="fw-bold mb-2" style="color: var(--text-dark);">
+                        <i class="fas fa-eye me-2" style="color: var(--primary-brown);"></i>
+                        Aperçu
+                    </h6>
+                    <p class="small text-muted">Les changements seront appliqués après validation</p>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button class="btn" style="background: {{ appearance.primary_color|default:'#A67C52' }}; color: white; border: none; padding: 0.5rem 1rem; border-radius: 30px;">
+                            Bouton principal
+                        </button>
+                        <button class="btn" style="background: white; border: 2px solid {{ appearance.primary_color|default:'#A67C52' }}; color: {{ appearance.primary_color|default:'#A67C52' }}; padding: 0.5rem 1rem; border-radius: 30px;">
+                            Bouton secondaire
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Enregistrer les modifications
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mise à jour de l'aperçu couleur
+        const colorInput = document.querySelector('input[name="primary_color"]');
+        const colorPreview = document.querySelector('.color-preview');
+        
+        if (colorInput && colorPreview) {
+            colorInput.addEventListener('input', function() {
+                colorPreview.style.backgroundColor = this.value;
+                updateButtonPreview(this.value);
+            });
+        }
+
+        function updateButtonPreview(color) {
+            const buttons = document.querySelectorAll('.btn');
+            if (buttons.length >= 2) {
+                buttons[0].style.backgroundColor = color;
+                buttons[1].style.borderColor = color;
+                buttons[1].style.color = color;
+            }
+        }
+
+        // Gestion des thèmes
+        const themeOptions = document.querySelectorAll('.theme-option');
+        themeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                themeOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                    const checkIcon = opt.querySelector('.fa-check-circle');
+                    if (checkIcon) checkIcon.remove();
+                });
+                
+                this.classList.add('selected');
+                const checkIcon = document.createElement('i');
+                checkIcon.className = 'fas fa-check-circle ms-auto';
+                checkIcon.style.color = 'var(--primary-brown)';
+                this.appendChild(checkIcon);
+            });
+        });
+
+        // Upload favicon
+        const faviconDrop = document.getElementById('faviconDrop');
+        const faviconInput = document.getElementById('faviconInput');
+        const faviconPreview = document.getElementById('faviconPreview');
+        const faviconPreviewImg = document.getElementById('faviconPreviewImg');
+        const faviconPreviewName = document.getElementById('faviconPreviewName');
+        const faviconPreviewSize = document.getElementById('faviconPreviewSize');
+
+        if (faviconDrop && faviconInput) {
+            faviconDrop.addEventListener('click', () => faviconInput.click());
+
+            faviconDrop.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                faviconDrop.style.borderColor = 'var(--primary-brown)';
+                faviconDrop.style.background = 'white';
+            });
+
+            faviconDrop.addEventListener('dragleave', () => {
+                faviconDrop.style.borderColor = '';
+                faviconDrop.style.background = '';
+            });
+
+            faviconDrop.addEventListener('drop', (e) => {
+                e.preventDefault();
+                faviconDrop.style.borderColor = '';
+                faviconDrop.style.background = '';
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    faviconInput.files = e.dataTransfer.files;
+                    showFaviconPreview(e.dataTransfer.files[0]);
+                }
+            });
+
+            faviconInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    showFaviconPreview(this.files[0]);
+                }
+            });
+        }
+
+        function showFaviconPreview(file) {
+            if (!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                faviconPreviewImg.src = e.target.result;
+                faviconPreviewName.textContent = file.name;
+                faviconPreviewSize.textContent = formatFileSize(file.size);
+                faviconPreview.style.display = 'flex';
+                
+                // Cacher le favicon actuel si présent
+                const currentFavicon = document.getElementById('currentFavicon');
+                if (currentFavicon) currentFavicon.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        window.removeCurrentFavicon = function() {
+            const currentFavicon = document.getElementById('currentFavicon');
+            if (currentFavicon) {
+                currentFavicon.remove();
+                // Ajouter un champ caché pour marquer la suppression
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'remove_favicon';
+                input.value = 'true';
+                document.getElementById('appearanceForm').appendChild(input);
+            }
+        };
+
+        window.removeNewFavicon = function() {
+            faviconPreview.style.display = 'none';
+            faviconInput.value = '';
+            const currentFavicon = document.getElementById('currentFavicon');
+            if (currentFavicon) currentFavicon.style.display = 'flex';
+        };
+    });
+</script>
+{% endblock %}

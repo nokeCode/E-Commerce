@@ -1,0 +1,23 @@
+<div class="mb-4">
+    {% for s in sessions %}
+    <div class="list-group-item border rounded mb-2 d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas {{ s.get_device_icon }} me-2"></i>
+            <strong>{{ s.browser|default:"Appareil inconnu" }}</strong>
+            <div class="small text-muted">{{ s.ip_address }} • Dernière activité : {{ s.last_activity|date:"d M Y H:i" }}</div>
+            {% if s.session_key == current_session_key %}
+            <div class="small text-success">(Cet appareil)</div>
+            {% endif %}
+        </div>
+        <div>
+            {% if s.session_key != current_session_key %}
+            <button class="btn btn-outline-danger btn-sm session-kick" data-session-key="{{ s.session_key }}">Déconnecter</button>
+            {% else %}
+            <button class="btn btn-outline-secondary btn-sm" disabled>En cours</button>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-muted p-3">Aucune session active détectée.</div>
+    {% endfor %}
+</div>

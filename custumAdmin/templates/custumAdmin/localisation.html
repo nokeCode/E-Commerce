@@ -1,0 +1,339 @@
+{% extends 'custumAdmin/base_admin.html' %}
+{% block title %}Localisation - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+    }
+
+    /* ========== EN-TÊTE ========== */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 2rem;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header h1:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px;
+    }
+
+    .page-header p {
+        color: var(--text-muted);
+        margin-top: 1rem;
+    }
+
+    /* ========== CARTE ========== */
+    .card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* ========== FORMULAIRES ========== */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid var(--cream-border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    /* ========== BOUTON ========== */
+    .btn-save {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn-save:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+    }
+
+    /* ========== INFO SUPPLÉMENTAIRES ========== */
+    .info-block {
+        background: var(--cream-light);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        border: 1px solid var(--cream-border);
+    }
+
+    .info-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-title i {
+        color: var(--primary-brown);
+    }
+
+    .country-list {
+        max-height: 150px;
+        overflow-y: auto;
+        border: 2px solid var(--cream-border);
+        border-radius: 12px;
+        padding: 0.5rem;
+    }
+
+    .country-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--cream-light);
+    }
+
+    .country-item:last-child {
+        border-bottom: none;
+    }
+
+    .country-flag {
+        font-size: 1.2rem;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÊTE -->
+    <div class="page-header">
+        <h1>Localisation</h1>
+        <p>Configurez les paramètres régionaux de votre boutique</p>
+    </div>
+
+    <!-- CARTE PRINCIPALE -->
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" id="localizationForm">
+                {% csrf_token %}
+
+                <!-- Pays par défaut -->
+                <div class="form-group">
+                    <label class="form-label">Pays par défaut</label>
+                    <select class="form-select" name="default_country" id="defaultCountry">
+                        {% for code, name in countries %}
+                            <option value="{{ code }}" {% if settings.default_country == code %}selected{% endif %}>
+                                {{ name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small class="text-muted">Ce pays sera présélectionné pour les nouveaux clients</small>
+                </div>
+
+                <!-- Devise -->
+                <div class="form-group">
+                    <label class="form-label">Devise</label>
+                    <select class="form-select" name="currency">
+                        <option value="XOF" {% if settings.currency == "XOF" %}selected{% endif %}>
+                            <i class="fas fa-money-bill"></i> Franc CFA (XOF)
+                        </option>
+                        <option value="EUR" {% if settings.currency == "EUR" %}selected{% endif %}>
+                            <i class="fas fa-euro-sign"></i> Euro (EUR)
+                        </option>
+                        <option value="USD" {% if settings.currency == "USD" %}selected{% endif %}>
+                            <i class="fas fa-dollar-sign"></i> Dollar US (USD)
+                        </option>
+                    </select>
+                    <small class="text-muted">Devise utilisée pour tous les prix</small>
+                </div>
+
+                <!-- Fuseau horaire -->
+                <div class="form-group">
+                    <label class="form-label">Fuseau horaire</label>
+                    <select class="form-select" name="timezone">
+                        {% for tz in timezones %}
+                            <option value="{{ tz }}" {% if settings.timezone == tz %}selected{% endif %}>
+                                {{ tz }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Format de date -->
+                <div class="form-group">
+                    <label class="form-label">Format de date</label>
+                    <select class="form-select" name="date_format">
+                        <option value="d/m/Y" {% if settings.date_format == 'd/m/Y' %}selected{% endif %}>31/12/2024</option>
+                        <option value="m/d/Y" {% if settings.date_format == 'm/d/Y' %}selected{% endif %}>12/31/2024</option>
+                        <option value="Y-m-d" {% if settings.date_format == 'Y-m-d' %}selected{% endif %}>2024-12-31</option>
+                    </select>
+                </div>
+
+                <!-- Langue -->
+                <div class="form-group">
+                    <label class="form-label">Langue par défaut</label>
+                    <select class="form-select" name="language">
+                        <option value="fr" {% if settings.language == 'fr' %}selected{% endif %}>Français</option>
+                        <option value="en" {% if settings.language == 'en' %}selected{% endif %}>English</option>
+                        <option value="es" {% if settings.language == 'es' %}selected{% endif %}>Español</option>
+                    </select>
+                </div>
+
+                <!-- Bloc d'information supplémentaire -->
+                <div class="info-block">
+                    <div class="info-title">
+                        <i class="fas fa-globe"></i>
+                        <span>Pays disponibles</span>
+                    </div>
+                    <div class="country-list">
+                        {% for code, name in countries %}
+                            <div class="country-item">
+                                <span class="country-flag">{{ code|upper }}</span>
+                                <span>{{ name }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <small class="text-muted d-block mt-2">{{ countries|length }} pays configurés</small>
+                </div>
+
+                <!-- Aperçu -->
+                <div class="info-block mt-3">
+                    <div class="info-title">
+                        <i class="fas fa-eye"></i>
+                        <span>Aperçu</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Prix:</strong> 1 234,56 {% if settings.currency == 'XOF' %}CFA{% else %}{{ settings.currency }}{% endif %}</p>
+                            <p class="mb-1"><strong>Date:</strong> {% now "d/m/Y" %}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Heure:</strong> {% now "H:i" %}</p>
+                            <p class="mb-1"><strong>Fuseau:</strong> {{ settings.timezone|default:"UTC" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Enregistrer les paramètres
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mise à jour de l'aperçu quand on change la devise
+        const currencySelect = document.querySelector('select[name="currency"]');
+        const defaultCountry = document.querySelector('select[name="default_country"]');
+        const previewBlock = document.querySelector('.info-block:last-child');
+
+        if (currencySelect && previewBlock) {
+            currencySelect.addEventListener('change', function() {
+                const symbol = this.value === 'XOF' ? 'CFA' : this.value;
+                const priceElement = previewBlock.querySelector('p:first-child');
+                priceElement.innerHTML = `<strong>Prix:</strong> 1 234,56 ${symbol}`;
+            });
+        }
+
+        // Mise à jour du format de date
+        const dateFormatSelect = document.querySelector('select[name="date_format"]');
+        if (dateFormatSelect && previewBlock) {
+            dateFormatSelect.addEventListener('change', function() {
+                const now = new Date();
+                let formattedDate;
+                switch(this.value) {
+                    case 'd/m/Y':
+                        formattedDate = now.toLocaleDateString('fr-FR');
+                        break;
+                    case 'm/d/Y':
+                        formattedDate = now.toLocaleDateString('en-US');
+                        break;
+                    default:
+                        formattedDate = now.toISOString().split('T')[0];
+                }
+                const dateElement = previewBlock.querySelector('p:nth-child(2)');
+                dateElement.innerHTML = `<strong>Date:</strong> ${formattedDate}`;
+            });
+        }
+
+        // Animation sur le sélecteur de pays
+        const countrySelect = document.getElementById('defaultCountry');
+        if (countrySelect) {
+            countrySelect.addEventListener('change', function() {
+                const selected = this.options[this.selectedIndex].text;
+                const flag = this.value;
+                
+                // Petite animation
+                this.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 200);
+            });
+        }
+    });
+</script>
+{% endblock %}

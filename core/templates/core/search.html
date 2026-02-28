@@ -1,0 +1,652 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+{% block title %}HStore | Search{% endblock%}
+{% block style %}
+<style>
+  /* Variables de couleurs cohérentes */
+  :root {
+    --cream-primary: #F7F3E9;
+    --cream-dark: #E8E2D1;
+    --cream-darker: #D4C9A8;
+    --accent-brown: #A67C52;
+    --accent-brown-dark: #8B5A3C;
+    --accent-orange: #FF6B35;
+    --text-dark: #5D4037;
+    --text-light: #8D6E63;
+    --cream-light: #FDFBF5;
+  }
+
+  /* Background pour toute la page */
+  body {
+    background-color: var(--cream-primary);
+  }
+
+  /* Hero Section - Plein écran */
+  .hero-section {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background-color: var(--cream-primary);
+  }
+
+  /* Container pour le contenu */
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+  }
+
+  /* Zone de texte à gauche */
+  .hero-text {
+    padding: 2rem;
+    max-width: 600px;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: slideInLeft 1s ease-out forwards;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: slideInLeft 1s ease-out 0.3s forwards;
+  }
+
+  /* Animations */
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-cta {
+    background: var(--accent-brown);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 0.6s forwards;
+  }
+
+  .hero-cta:hover {
+    background: var(--accent-brown-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(166, 124, 82, 0.3);
+  }
+
+  /* Carrousel d'images à droite */
+  .hero-carousel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .carousel-slide {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .carousel-slide.active {
+    opacity: 1;
+  }
+
+  /* Dégradé de gauche à droite - Plus progressif */
+  .gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    background: linear-gradient(to right, 
+      var(--cream-primary) 0%,
+      var(--cream-primary) 35%,
+      rgba(247, 243, 233, 0.95) 45%,
+      rgba(247, 243, 233, 0.85) 52%,
+      rgba(247, 243, 233, 0.7) 58%,
+      rgba(247, 243, 233, 0.5) 63%,
+      rgba(247, 243, 233, 0.3) 68%,
+      rgba(247, 243, 233, 0.15) 73%,
+      rgba(247, 243, 233, 0.05) 78%,
+      rgba(247, 243, 233, 0) 83%
+    );
+    pointer-events: none;
+  }
+
+  /* Indicateurs de carrousel */
+  .carousel-indicators {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    z-index: 20;
+    display: flex;
+    gap: 10px;
+  }
+
+  .carousel-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .carousel-dot.active {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    transform: scale(1.2);
+  }
+
+  /* Section de contenu défilable */
+  .content-section {
+    background: var(--cream-primary);
+    padding: 3rem 0;
+  }
+
+  /* Grille de produits - 4 COLONNES HORIZONTALES */
+  .products-grid {
+    margin-top: 2rem;
+  }
+
+  /* Cards produits - STYLE AMELIORE */
+  .product-card {
+    background: white;
+    border: 1px solid var(--cream-darker);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+    height: 100%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(166, 124, 82, 0.15);
+    border-color: var(--accent-brown);
+  }
+
+  /* Image produit */
+  .product-image-container {
+    height: 200px;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.5s ease;
+    padding: 10px;
+  }
+
+  .product-card:hover .product-image {
+    transform: scale(1.05);
+  }
+
+  /* Badge promotion (optionnel) */
+  .product-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--accent-orange);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 2;
+  }
+
+  /* Titre produit */
+  .product-title {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+    height: 2.8rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    flex-grow: 0;
+  }
+
+  /* Note et avis */
+  .product-rating {
+    margin-bottom: 0.75rem;
+  }
+
+  .stars {
+    display: inline-block;
+    margin-right: 0.5rem;
+  }
+
+  .rating-text {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-right: 0.25rem;
+  }
+
+  /* Prix */
+  .product-price {
+    color: var(--accent-brown);
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Livraison */
+  .product-shipping {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--cream-darker);
+    border-bottom: 1px solid var(--cream-darker);
+  }
+
+  /* Bouton Ajouter au panier */
+  .btn-add-cart {
+    background: var(--accent-brown);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    cursor: pointer;
+    margin-top: auto;
+  }
+
+  .btn-add-cart:hover {
+    background: var(--accent-brown-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(166, 124, 82, 0.3);
+  }
+
+  /* Titre de section */
+  .section-title {
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--accent-brown);
+    border-radius: 2px;
+  }
+
+  /* Message d'erreur */
+  .alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 2rem;
+  }
+
+  /* Responsive pour 4 colonnes */
+  @media (min-width: 1400px) {
+    .col-xxl-3 {
+      flex: 0 0 auto;
+      width: 25%;
+    }
+  }
+
+  @media (max-width: 1400px) {
+    .col-xxl-3 {
+      flex: 0 0 auto;
+      width: 33.333333%;
+    }
+  }
+
+  @media (max-width: 992px) {
+    .col-xxl-3 {
+      flex: 0 0 auto;
+      width: 50%;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .col-xxl-3 {
+      flex: 0 0 auto;
+      width: 100%;
+    }
+  }
+
+  /* Hero responsive */
+  @media (max-width: 992px) {
+    .hero-carousel {
+      width: 60%;
+    }
+
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .gradient-overlay {
+      background: linear-gradient(to right, 
+        var(--cream-primary) 0%,
+        var(--cream-primary) 25%,
+        rgba(247, 243, 233, 0.8) 40%,
+        rgba(247, 243, 233, 0) 65%
+      );
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-section {
+      min-height: 80vh;
+    }
+
+    .hero-carousel {
+      width: 100%;
+      opacity: 0.3;
+    }
+
+    .gradient-overlay {
+      background: linear-gradient(to bottom, 
+        transparent 0%,
+        var(--cream-primary) 60%,
+        var(--cream-primary) 100%
+      );
+    }
+
+    .hero-text {
+      text-align: center;
+      max-width: 100%;
+      padding: 1rem;
+    }
+
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+
+    .carousel-indicators {
+      bottom: 20px;
+      right: 50%;
+      transform: translateX(50%);
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-background">
+    <header>{% include "core/header.html" %}</header>
+   
+    <!-- Section de contenu défilable -->
+    <main class="content-section">
+        <div class="container">
+            <!-- Titre de section -->
+            {% if query %}
+                <div class="mb-4">
+                    <h1 class="section-title">
+                        Résultats pour "{{ query }}"
+                    </h1>
+                    <p class="text-muted mb-0">{{ products|length }} produit{% if products|length > 1 %}s{% endif %} trouvé{% if products|length > 1 %}s{% endif %}</p>
+                </div>
+            {% else %}
+                <h1 class="section-title mb-4">
+                    Tous nos produits
+                </h1>
+            {% endif %}
+
+            <!-- Grille de produits - 4 COLONNES -->
+            {% if products %}
+                <div class="row products-grid g-4">
+                    {% for product in products %}
+                        <div class="col-xxl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
+                            <div class="product-card">
+                                <!-- Badge promotion (exemple) -->
+                                {% if forloop.counter <= 3 %}
+                                <div class="product-badge">
+                                    POPULAIRE
+                                </div>
+                                {% endif %}
+
+                                <!-- Image produit -->
+                                <div class="product-image-container">
+                                    {% if product.main_image %}
+                                        <img src="{% static product.main_image.image.url %}" 
+                                             alt="{{ product.name }}" 
+                                             class="product-image">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/300x200?text=HStore" 
+                                             alt="{{ product.name }}" 
+                                             class="product-image">
+                                    {% endif %}
+                                </div>
+
+                                <!-- Titre produit -->
+                                <h3 class="product-title">
+                                    {{ product.name }}
+                                </h3>
+
+                                <!-- Note et avis -->
+                                <div class="product-rating">
+                                    {% with avg=product.get_average_rating %}
+                                        {% if product.get_reviews_count %}
+                                            <div class="stars">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= avg %}
+                                                        <i class="fas fa-star" style="color: #f5c150;"></i>
+                                                    {% elif forloop.counter == avg|add:0.5|floatformat:0 %}
+                                                        <i class="fas fa-star-half-alt" style="color: #f5c150;"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star" style="color: #ccc;"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <span class="rating-text">{{ avg|floatformat:1 }}/5</span>
+                                            <span class="text-muted">({{ product.get_reviews_count }})</span>
+                                        {% else %}
+                                            <span class="text-muted small">{% trans "Pas encore d'avis" %}</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+
+                                <!-- Prix -->
+                                <div class="product-price">
+                                    {{ product.price }} €
+                                </div>
+
+                                <!-- Livraison -->
+                                <div class="product-shipping">
+                                    <i class="fas fa-shipping-fast me-2"></i>{% trans "Livraison GRATUITE" %}
+                                </div>
+
+                                <!-- Bouton action -->
+                                <button class="btn-add-cart" data-product-id="{{ product.id }}" data-quantity="1">
+                                    <i class="fas fa-cart-plus me-2"></i>{% trans "Ajouter au panier" %}
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <!-- Aucun résultat -->
+                <div class="alert alert-warning mt-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-search me-3 fa-2x"></i>
+                        <div>
+                            <h5 class="mb-1">{% trans "Aucun résultat trouvé" %}</h5>
+                            {% if query %}
+                                <p class="mb-0">Aucun produit ne correspond à <strong>"{{ query }}"</strong></p>
+                            {% else %}
+                                <p class="mb-0">Aucun produit disponible pour le moment</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+    {% include "cart/modal.html" %}
+
+    <footer>{% include "core/footer.html" %}</footer>
+</div>
+
+<!-- Bootstrap JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Carrousel Hero personnalisé
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.carousel-dot');
+    if (slides.length > 0 && dots.length > 0) {
+        let currentSlide = 0;
+        
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+            currentSlide = index;
+        }
+        
+        function nextSlide() {
+            let nextIndex = (currentSlide + 1) % slides.length;
+            showSlide(nextIndex);
+        }
+        
+        // Auto-play du carrousel hero
+        setInterval(nextSlide, 5000);
+        
+        // Click sur les indicateurs
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => showSlide(index));
+        });
+    }
+    
+    // Animation d'apparition des produits
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Animer les cartes produits
+    const productCards = document.querySelectorAll('.product-card');
+    productCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.5s ease';
+        
+        setTimeout(() => {
+            observer.observe(card);
+        }, index * 100);
+    });
+
+    // Animation images au survol
+    const productImages = document.querySelectorAll('.product-image');
+    productImages.forEach(img => {
+        const container = img.closest('.product-image-container');
+        if (container) {
+            container.addEventListener('mouseenter', function() {
+                this.querySelector('.product-image').style.transform = 'scale(1.05)';
+            });
+            
+            container.addEventListener('mouseleave', function() {
+                this.querySelector('.product-image').style.transform = 'scale(1)';
+            });
+        }
+    });
+
+    // Effet sur les boutons "Ajouter au panier"
+    const addCartBtns = document.querySelectorAll('.btn-add-cart');
+    addCartBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check me-2"></i>Ajouté !';
+            this.style.background = 'var(--accent-orange)';
+            
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.style.background = '';
+            }, 2000);
+        });
+    });
+});
+</script>
+{% endblock %}

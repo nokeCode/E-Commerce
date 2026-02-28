@@ -1,0 +1,636 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% block title %}Modifier {{ category.name }} - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+    }
+
+    /* ========== EN-TÊTE ========== */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .btn-back {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-right: 1rem;
+    }
+
+    .btn-back:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateX(-3px);
+    }
+
+    .btn-header-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-cancel {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.75rem 1.5rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-cancel:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-update {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-update:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+    }
+
+    .form-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .form-card:hover {
+        border-color: var(--primary-brown);
+    }
+
+    .form-label {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid var(--cream-border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    .form-control-lg {
+        font-size: 1.1rem;
+        padding: 1rem 1.25rem;
+    }
+
+    .form-control[readonly] {
+        background: var(--cream-light);
+        cursor: not-allowed;
+    }
+
+    /* ========== ÉDITEUR DE TEXTE ========== */
+    .editor-toolbar {
+        background: var(--cream-light);
+        border: 2px solid var(--cream-border);
+        border-bottom: none;
+        border-radius: 12px 12px 0 0;
+        padding: 0.5rem;
+        display: flex;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-btn {
+        background: white;
+        border: 1px solid var(--cream-border);
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .toolbar-btn:hover {
+        background: var(--cream-light);
+        border-color: var(--primary-brown);
+        color: var(--primary-brown);
+    }
+
+    .toolbar-btn i {
+        font-size: 1rem;
+    }
+
+    .editor-content {
+        border: 2px solid var(--cream-border);
+        border-radius: 0 0 12px 12px;
+        padding: 1rem;
+        min-height: 200px;
+        overflow-y: auto;
+        background: white;
+    }
+
+    .editor-content:focus {
+        outline: none;
+        border-color: var(--primary-brown);
+    }
+
+    /* ========== IMAGE ========== */
+    .current-image-container {
+        background: var(--cream-light);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .current-image {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 12px;
+        border: 3px solid var(--primary-brown);
+        margin-bottom: 1rem;
+    }
+
+    .photo-upload-container {
+        padding: 1.5rem;
+        border: 2px dashed var(--cream-border);
+        border-radius: 12px;
+        text-align: center;
+        background: var(--cream-light);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .photo-upload-container:hover {
+        border-color: var(--primary-brown);
+        background: white;
+    }
+
+    .photo-upload-container i {
+        font-size: 2rem;
+        color: var(--cream-border);
+        margin-bottom: 0.5rem;
+    }
+
+    .photo-preview {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 12px;
+        border: 3px solid var(--primary-brown);
+        margin: 1rem auto;
+        display: none;
+    }
+
+    .photo-preview.visible {
+        display: block;
+    }
+
+    /* ========== OPTIONS ========== */
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--cream-border);
+        border-radius: 4px;
+        cursor: pointer;
+        accent-color: var(--primary-brown);
+    }
+
+    /* ========== STATISTIQUES ========== */
+    .stats-card {
+        background: var(--cream-light);
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+    }
+
+    /* ========== BADGE ========== */
+    .badge-custom {
+        padding: 0.25rem 0.75rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .badge-active {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+    }
+
+    .badge-inactive {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+        border: 1px solid var(--danger-color);
+    }
+
+    .badge-featured {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: white;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .btn-header-group {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .btn-cancel, .btn-update {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .options-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÊTE AVEC RETOUR -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 page-header">
+        <div class="d-flex align-items-center">
+            <a href="{% url 'category_list' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <div>
+                <h2 class="fw-bold mb-1">Modifier la catégorie</h2>
+                <p class="text-muted mb-0">
+                    <span class="badge-custom {% if category.is_active %}badge-active{% else %}badge-inactive{% endif %} me-2">
+                        {% if category.is_active %}
+                            <i class="fas fa-circle-check"></i> Active
+                        {% else %}
+                            <i class="fas fa-circle-xmark"></i> Inactive
+                        {% endif %}
+                    </span>
+                    {% if category.is_featured %}
+                        <span class="badge-custom badge-featured">
+                            <i class="fas fa-crown"></i> À la une
+                        </span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="btn-header-group">
+            <a href="{% url 'category_detail' category.id %}" class="btn-cancel">
+                <i class="fas fa-xmark"></i> Annuler
+            </a>
+            <button type="submit" form="categoryForm" class="btn-update">
+                <i class="fas fa-floppy-disk"></i> Mettre à jour
+            </button>
+        </div>
+    </div>
+
+    <!-- FORMULAIRE -->
+    <form id="categoryForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-4">
+            <!-- COLONNE PRINCIPALE -->
+            <div class="col-lg-8">
+                <div class="form-card">
+                    <!-- Nom de la catégorie -->
+                    <div class="mb-4">
+                        <label class="form-label">Nom de la catégorie <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="categoryName" class="form-control form-control-lg" 
+                               value="{{ category.name }}" required>
+                    </div>
+
+                    <!-- Slug -->
+                    <div class="mb-4">
+                        <label class="form-label">Slug (URL)</label>
+                        <input type="text" name="slug" id="categorySlug" class="form-control" 
+                               value="{{ category.slug }}" readonly>
+                        <small class="text-muted">Généré automatiquement à partir du nom</small>
+                    </div>
+
+                    <!-- Catégorie parente -->
+                    <div class="mb-4">
+                        <label class="form-label">Catégorie parente</label>
+                        <select name="parent" class="form-select">
+                            <option value="">Aucune (catégorie racine)</option>
+                            {% for cat in categories %}
+                                {% if cat.id != category.id %}
+                                    <option value="{{ cat.id }}" {% if category.parent and category.parent.id == cat.id %}selected{% endif %}>
+                                        {{ cat.name }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Laissez vide pour une catégorie principale</small>
+                    </div>
+
+                    <!-- Description avec éditeur -->
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        
+                        <!-- Barre d'outils -->
+                        <div class="editor-toolbar">
+                            <button type="button" class="toolbar-btn" onclick="formatText('bold')">
+                                <i class="fas fa-bold"></i> Gras
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('italic')">
+                                <i class="fas fa-italic"></i> Italique
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('underline')">
+                                <i class="fas fa-underline"></i> Souligné
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('insertUnorderedList')">
+                                <i class="fas fa-list-ul"></i> Liste
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('insertOrderedList')">
+                                <i class="fas fa-list-ol"></i> Liste numérotée
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('createLink')">
+                                <i class="fas fa-link"></i> Lien
+                            </button>
+                        </div>
+
+                        <!-- Zone d'édition -->
+                        <div id="editor" class="editor-content" contenteditable="true">
+                            {{ category.description|safe }}
+                        </div>
+
+                        <!-- Champ caché pour soumettre le contenu -->
+                        <textarea name="description" id="descriptionHidden" hidden>{{ category.description }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLONNE LATÉRALE -->
+            <div class="col-lg-4">
+                <!-- Statistiques rapides -->
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ products_count|default:"0" }}</div>
+                        <div class="stat-label">Produits</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ subcategories_count|default:"0" }}</div>
+                        <div class="stat-label">Sous-catégories</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ category.display_order|default:"0" }}</div>
+                        <div class="stat-label">Ordre</div>
+                    </div>
+                </div>
+
+                <!-- Image de la catégorie -->
+                <div class="form-card">
+                    <h5 class="fw-bold mb-3" style="color: var(--text-dark);">
+                        <i class="fas fa-image me-2" style="color: var(--primary-brown);"></i>
+                        Image ou icone
+                    </h5>
+
+                    {% if category.icone %}
+                    <div class="current-image-container">
+                        <img src="{{ category.icone }}" class="current-image" alt="{{ category.name }}">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="remove_image" id="removeImage">
+                            <label class="form-check-label" for="removeImage">Supprimer l'image actuelle</label>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div id="photoDrop" class="photo-upload-container">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Déposez une nouvelle image ici ou cliquez pour parcourir</p>
+                        <small class="text-muted">Format: JPG, PNG (max 2 Mo)</small>
+                        <input type="file" id="photoInput" name="image" accept="image/*" hidden>
+                    </div>
+
+                    <img id="photoPreview" class="photo-preview" alt="Aperçu">
+
+                    <!-- Options -->
+                    <h5 class="fw-bold mt-4 mb-3" style="color: var(--text-dark);">
+                        <i class="fas fa-gear me-2" style="color: var(--primary-brown);"></i>
+                        Options
+                    </h5>
+
+                    <div class="options-grid">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="is_active" id="isActive" 
+                                   {% if category.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="isActive">Active</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="is_featured" id="isFeatured"
+                                   {% if category.is_featured %}checked{% endif %}>
+                            <label class="form-check-label" for="isFeatured">À la une</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="show_in_menu" id="showInMenu"
+                                   {% if category.show_in_menu %}checked{% endif %}>
+                            <label class="form-check-label" for="showInMenu">Afficher dans le menu</label>
+                        </div>
+                    </div>
+
+                    <!-- Ordre d'affichage -->
+                    <div class="mt-4">
+                        <label class="form-label">Ordre d'affichage</label>
+                        <input type="number" name="display_order" class="form-control" 
+                               value="{{ category.display_order|default:'0' }}" min="0">
+                    </div>
+
+                    <!-- Métadonnées -->
+                    <div class="mt-4 pt-3 border-top" style="border-color: var(--cream-border) !important;">
+                        <small class="text-muted d-block mb-1">
+                            <i class="fas fa-calendar me-1"></i> Créée le {{ category.created_at|date:"d/m/Y H:i" }}
+                        </small>
+                        <small class="text-muted d-block">
+                            <i class="fas fa-pen me-1"></i> Dernière modif. {{ category.updated_at|date:"d/m/Y H:i" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        /* ========== AUTO-GÉNÉRATION DU SLUG ========== */
+        const nameInput = document.getElementById('categoryName');
+        const slugInput = document.getElementById('categorySlug');
+
+        if (nameInput && slugInput) {
+            nameInput.addEventListener('keyup', function() {
+                let slug = this.value.toLowerCase()
+                                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                                    .replace(/[^a-z0-9]+/g, '-')
+                                    .replace(/^-|-$/g, '');
+                slugInput.value = slug;
+            });
+        }
+
+        /* ========== UPLOAD D'IMAGE ========== */
+        const dropzone = document.getElementById('photoDrop');
+        const fileInput = document.getElementById('photoInput');
+        const preview = document.getElementById('photoPreview');
+        const removeImageCheck = document.getElementById('removeImage');
+
+        if (dropzone && fileInput) {
+            dropzone.addEventListener('click', () => fileInput.click());
+
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.style.borderColor = 'var(--primary-brown)';
+                dropzone.style.background = 'white';
+            });
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.style.borderColor = '';
+                dropzone.style.background = '';
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.style.borderColor = '';
+                dropzone.style.background = '';
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    fileInput.files = e.dataTransfer.files;
+                    showPreview(e.dataTransfer.files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    showPreview(this.files[0]);
+                }
+            });
+        }
+
+        function showPreview(file) {
+            if (!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.classList.add('visible');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (removeImageCheck) {
+            removeImageCheck.addEventListener('change', function() {
+                if (this.checked) {
+                    fileInput.disabled = true;
+                } else {
+                    fileInput.disabled = false;
+                }
+            });
+        }
+
+        /* ========== ÉDITEUR DE TEXTE ========== */
+        window.formatText = function(command) {
+            document.execCommand(command, false, null);
+            if (command === 'createLink') {
+                let url = prompt("Entrez l'URL du lien:", "https://");
+                if (url) document.execCommand(command, false, url);
+            }
+            document.getElementById('editor').focus();
+        };
+
+        // Sauvegarder le contenu de l'éditeur avant soumission
+        document.getElementById('categoryForm').addEventListener('submit', function() {
+            document.getElementById('descriptionHidden').value = 
+                document.getElementById('editor').innerHTML;
+        });
+    });
+</script>
+{% endblock %}

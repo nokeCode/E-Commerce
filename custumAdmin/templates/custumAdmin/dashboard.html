@@ -1,0 +1,1012 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+    }
+
+    /* ========== EN-TÊTE ========== */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        color: var(--text-dark);
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header h2:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px;
+    }
+
+    .date-badge {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.5rem 1.5rem;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+    }
+
+    .date-badge i {
+        color: var(--primary-brown);
+        margin-right: 0.5rem;
+    }
+
+    /* ========== CARTES KPI (4 SEULEMENT) ========== */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .kpi-card:hover {
+        border-color: var(--primary-brown);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.1);
+    }
+
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .kpi-title {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .kpi-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--cream-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-brown);
+        font-size: 1.2rem;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .trend-up {
+        color: var(--success-color);
+        background: rgba(40, 167, 69, 0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .trend-down {
+        color: var(--danger-color);
+        background: rgba(220, 53, 69, 0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* ========== GRAPHIQUES ========== */
+    .chart-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .chart-header h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chart-header h5 i {
+        color: var(--primary-brown);
+    }
+
+    .chart-period {
+        display: flex;
+        gap: 0.25rem;
+        background: var(--cream-light);
+        border-radius: 30px;
+        padding: 0.25rem;
+    }
+
+    .period-btn {
+        padding: 0.25rem 1rem;
+        border-radius: 30px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .period-btn:hover {
+        background: white;
+        color: var(--primary-brown);
+    }
+
+    .period-btn.active {
+        background: var(--primary-brown);
+        color: white;
+    }
+
+    .chart-container {
+        height: 200px;
+        position: relative;
+    }
+
+    /* ========== STATUTS COMMANDES ========== */
+    .status-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .status-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .status-item:hover {
+        background: var(--cream-light);
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .status-label {
+        flex: 1;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+    }
+
+    .status-count {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .status-percent {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+
+    /* ========== TABLEAU TOP PRODUITS ========== */
+    .table-mini {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-mini th {
+        text-align: left;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--cream-light);
+    }
+
+    .table-mini td {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--cream-light);
+    }
+
+    .table-mini tr:last-child td {
+        border-bottom: none;
+    }
+
+    .product-info-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .product-rank {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--cream-light);
+        color: var(--primary-brown);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .product-category {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .stock-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 30px;
+        background: var(--cream-light);
+    }
+
+    .stock-low {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+    }
+
+    /* ========== ACTIVITÉ RÉCENTE ========== */
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .activity-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .activity-row:hover {
+        background: var(--cream-light);
+    }
+
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--cream-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-brown);
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+    }
+
+    .activity-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .activity-time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .badge-status {
+        padding: 0.2rem 0.5rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .badge-pending {
+        background: rgba(255, 193, 7, 0.1);
+        color: #856404;
+    }
+
+    .badge-shipped {
+        background: rgba(23, 162, 184, 0.1);
+        color: #117a8b;
+    }
+
+    .badge-delivered {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+    }
+
+    /* ========== GRILLE SECONDAIRE ========== */
+    .secondary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .secondary-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+
+    .secondary-card h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .secondary-card h5 i {
+        color: var(--primary-brown);
+    }
+
+    .geo-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .geo-flag {
+        width: 24px;
+        font-size: 1.2rem;
+    }
+
+    .geo-name {
+        width: 80px;
+        font-size: 0.9rem;
+    }
+
+    .geo-bar {
+        flex: 1;
+        height: 6px;
+        background: var(--cream-light);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .geo-bar-fill {
+        height: 100%;
+        background: var(--primary-brown);
+        border-radius: 3px;
+    }
+
+    .geo-value {
+        min-width: 45px;
+        text-align: right;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .payment-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .payment-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--cream-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-brown);
+    }
+
+    .payment-info {
+        flex: 1;
+    }
+
+    .payment-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .payment-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1200px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .secondary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .kpi-grid,
+        .secondary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- ========== EN-TÊTE SIMPLE ========== -->
+    <div class="page-header">
+        <h2>Tableau de bord</h2>
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="text-muted mb-0">
+                <i class="fas fa-calendar-alt me-2" style="color: var(--primary-brown);"></i>
+                {{ today|date:"l d F Y" }}
+            </p>
+            <span class="date-badge">
+                <i class="fas fa-sync-alt"></i>
+                Mis à jour à {% now "H:i" %}
+            </span>
+        </div>
+    </div>
+
+    <!-- ========== 4 CARTES KPI ESSENTIELLES ========== -->
+    <div class="kpi-grid">
+        <!-- Ventes du jour -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-title">Ventes du jour</span>
+                <div class="kpi-icon">
+                    <i class="fas fa-euro-sign"></i>
+                </div>
+            </div>
+            <div class="kpi-value">1 284 €</div>
+            <div class="kpi-trend">
+                <span class="trend-up">
+                    <i class="fas fa-arrow-up"></i> +12%
+                </span>
+                <span>vs hier</span>
+            </div>
+        </div>
+
+        <!-- Commandes -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-title">Commandes</span>
+                <div class="kpi-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+            <div class="kpi-value">342</div>
+            <div class="kpi-trend">
+                <span class="trend-up">
+                    <i class="fas fa-arrow-up"></i> +8%
+                </span>
+                <span>ce mois</span>
+            </div>
+        </div>
+
+        <!-- Nouveaux clients -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-title">Nouveaux clients</span>
+                <div class="kpi-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <div class="kpi-value">48</div>
+            <div class="kpi-trend">
+                <span class="trend-up">
+                    <i class="fas fa-arrow-up"></i> +26%
+                </span>
+                <span>ce mois</span>
+            </div>
+        </div>
+
+        <!-- Panier moyen -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-title">Panier moyen</span>
+                <div class="kpi-icon">
+                    <i class="fas fa-shopping-basket"></i>
+                </div>
+            </div>
+            <div class="kpi-value">53 €</div>
+            <div class="kpi-trend">
+                <span class="trend-up">
+                    <i class="fas fa-arrow-up"></i> +3%
+                </span>
+                <span>vs mois dernier</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== GRAPHIQUES ========== -->
+    <div class="chart-grid">
+        <!-- Graphique ventes 30 jours -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h5>
+                    <i class="fas fa-chart-line"></i>
+                    Évolution des ventes
+                </h5>
+                <div class="chart-period">
+                    <button class="period-btn">7j</button>
+                    <button class="period-btn active">30j</button>
+                    <button class="period-btn">90j</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Statuts des commandes -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h5>
+                    <i class="fas fa-chart-pie"></i>
+                    Statuts des commandes
+                </h5>
+            </div>
+            <canvas id="ordersStatusChart" style="height: 120px;"></canvas>
+            <div class="status-list">
+                <div class="status-item">
+                    <span class="status-dot" style="background: #A67C52;"></span>
+                    <span class="status-label">En attente</span>
+                    <span class="status-count">24</span>
+                    <span class="status-percent">22%</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" style="background: #FFA500;"></span>
+                    <span class="status-label">En préparation</span>
+                    <span class="status-count">18</span>
+                    <span class="status-percent">16%</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" style="background: #17a2b8;"></span>
+                    <span class="status-label">Expédiée</span>
+                    <span class="status-count">32</span>
+                    <span class="status-percent">29%</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" style="background: #28a745;"></span>
+                    <span class="status-label">Livrée</span>
+                    <span class="status-count">28</span>
+                    <span class="status-percent">25%</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" style="background: #dc3545;"></span>
+                    <span class="status-label">Annulée</span>
+                    <span class="status-count">9</span>
+                    <span class="status-percent">8%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SECTION TOP PRODUITS ========== -->
+    <div class="secondary-card" style="margin-bottom: 1.5rem;">
+        <h5>
+            <i class="fas fa-fire"></i>
+            Top 5 produits les plus vendus
+        </h5>
+        <table class="table-mini">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Ventes</th>
+                    <th>Revenus</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="product-info-cell">
+                            <span class="product-rank">1</span>
+                            <div>
+                                <div class="product-name">T-shirt Premium Noir</div>
+                                <div class="product-category">Vêtements</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>42</td>
+                    <td>1 260 €</td>
+                    <td><span class="stock-badge">18</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="product-info-cell">
+                            <span class="product-rank">2</span>
+                            <div>
+                                <div class="product-name">Casque Bluetooth Pro</div>
+                                <div class="product-category">Audio</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>38</td>
+                    <td>2 280 €</td>
+                    <td><span class="stock-badge stock-low">5</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="product-info-cell">
+                            <span class="product-rank">3</span>
+                            <div>
+                                <div class="product-name">Montre Connectée</div>
+                                <div class="product-category">Accessoires</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>27</td>
+                    <td>2 430 €</td>
+                    <td><span class="stock-badge stock-low">3</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="product-info-cell">
+                            <span class="product-rank">4</span>
+                            <div>
+                                <div class="product-name">Enceinte Bluetooth</div>
+                                <div class="product-category">Audio</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>21</td>
+                    <td>1 470 €</td>
+                    <td><span class="stock-badge">12</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="product-info-cell">
+                            <span class="product-rank">5</span>
+                            <div>
+                                <div class="product-name">Sac à dos Urban</div>
+                                <div class="product-category">Accessoires</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>19</td>
+                    <td>950 €</td>
+                    <td><span class="stock-badge stock-low">2</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== GRILLE SECONDAIRE (3 COLONNES) ========== -->
+    <div class="secondary-grid">
+        <!-- Répartition géographique -->
+        <div class="secondary-card">
+            <h5>
+                <i class="fas fa-globe"></i>
+                Top pays
+            </h5>
+            <div class="geo-item">
+                <span class="geo-flag">🇫🇷</span>
+                <span class="geo-name">France</span>
+                <div class="geo-bar">
+                    <div class="geo-bar-fill" style="width: 48%;"></div>
+                </div>
+                <span class="geo-value">48%</span>
+            </div>
+            <div class="geo-item">
+                <span class="geo-flag">🇧🇪</span>
+                <span class="geo-name">Belgique</span>
+                <div class="geo-bar">
+                    <div class="geo-bar-fill" style="width: 22%;"></div>
+                </div>
+                <span class="geo-value">22%</span>
+            </div>
+            <div class="geo-item">
+                <span class="geo-flag">🇨🇭</span>
+                <span class="geo-name">Suisse</span>
+                <div class="geo-bar">
+                    <div class="geo-bar-fill" style="width: 15%;"></div>
+                </div>
+                <span class="geo-value">15%</span>
+            </div>
+            <div class="geo-item">
+                <span class="geo-flag">🇨🇦</span>
+                <span class="geo-name">Canada</span>
+                <div class="geo-bar">
+                    <div class="geo-bar-fill" style="width: 10%;"></div>
+                </div>
+                <span class="geo-value">10%</span>
+            </div>
+        </div>
+
+        <!-- Méthodes de paiement -->
+        <div class="secondary-card">
+            <h5>
+                <i class="fas fa-credit-card"></i>
+                Paiements
+            </h5>
+            <div class="payment-item">
+                <div class="payment-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="payment-info">
+                    <div class="payment-name">Carte bancaire</div>
+                    <div class="payment-stats">
+                        <span>70%</span>
+                        <span>234 commandes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="payment-item">
+                <div class="payment-icon">
+                    <i class="fab fa-paypal"></i>
+                </div>
+                <div class="payment-info">
+                    <div class="payment-name">PayPal</div>
+                    <div class="payment-stats">
+                        <span>20%</span>
+                        <span>67 commandes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="payment-item">
+                <div class="payment-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="payment-info">
+                    <div class="payment-name">Mobile Money</div>
+                    <div class="payment-stats">
+                        <span>10%</span>
+                        <span>33 commandes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activité récente -->
+        <div class="secondary-card">
+            <h5>
+                <i class="fas fa-history"></i>
+                Activité récente
+            </h5>
+            <div class="activity-list">
+                <div class="activity-row">
+                    <div class="activity-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">#CMD-2025-001</div>
+                        <div class="activity-meta">
+                            <span>Jean D.</span>
+                            <span class="badge-status badge-pending">En attente</span>
+                        </div>
+                    </div>
+                    <span class="activity-time">5 min</span>
+                </div>
+                <div class="activity-row">
+                    <div class="activity-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">#CMD-2025-002</div>
+                        <div class="activity-meta">
+                            <span>Marie M.</span>
+                            <span class="badge-status badge-shipped">Expédiée</span>
+                        </div>
+                    </div>
+                    <span class="activity-time">25 min</span>
+                </div>
+                <div class="activity-row">
+                    <div class="activity-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Nouvel avis</div>
+                        <div class="activity-meta">
+                            <span>Richard D.</span>
+                            <span>★★★★★</span>
+                        </div>
+                    </div>
+                    <span class="activity-time">1h</span>
+                </div>
+                <div class="activity-row">
+                    <div class="activity-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Nouveau client</div>
+                        <div class="activity-meta">
+                            <span>Thomas L.</span>
+                        </div>
+                    </div>
+                    <span class="activity-time">2h</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript pour les graphiques -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Données pour les 30 jours
+    const days = Array.from({ length: 30 }, (_, i) => `${i+1}`);
+    
+    const salesDataCurrent = [
+        200, 250, 220, 300, 350, 420, 380,
+        400, 390, 420, 450, 470, 460, 480,
+        500, 520, 510, 530, 540, 560, 580,
+        570, 590, 600, 620, 630, 610, 650,
+        670, 700
+    ];
+    
+    const salesDataLast = [
+        180, 200, 210, 260, 300, 350, 340,
+        360, 350, 380, 390, 410, 400, 420,
+        430, 440, 455, 470, 480, 490, 520,
+        500, 520, 530, 550, 560, 540, 580,
+        600, 620
+    ];
+
+    // GRAPHE 1 : Ventes
+    new Chart(document.getElementById('salesChart'), {
+        type: 'line',
+        data: {
+            labels: days,
+            datasets: [
+                {
+                    label: 'Mois actuel',
+                    data: salesDataCurrent,
+                    borderColor: '#A67C52',
+                    backgroundColor: 'rgba(166, 124, 82, 0.05)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#A67C52',
+                    fill: true
+                },
+                {
+                    label: 'Mois précédent',
+                    data: salesDataLast,
+                    borderColor: '#8B5A3C',
+                    borderDash: [6, 6],
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        callback: (value, index) => index % 5 === 0 ? days[index] : '',
+                        color: '#8D6E63'
+                    }
+                },
+                y: {
+                    grid: { color: 'rgba(166, 124, 82, 0.1)' },
+                    ticks: { color: '#8D6E63' }
+                }
+            }
+        }
+    });
+
+    // GRAPHE 2 : Statuts commandes (Donut)
+    new Chart(document.getElementById('ordersStatusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['En attente', 'En préparation', 'Expédiée', 'Livrée', 'Annulée'],
+            datasets: [{
+                data: [24, 18, 32, 28, 9],
+                backgroundColor: ['#A67C52', '#FFA500', '#17a2b8', '#28a745', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            cutout: '70%'
+        }
+    });
+
+    // Gestion des boutons de période
+    document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+});
+</script>
+{% endblock %}

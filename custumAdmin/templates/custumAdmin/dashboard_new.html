@@ -1,0 +1,674 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --info-color: #17a2b8;
+    }
+
+    /* ========== HEADER ========== */
+    .dashboard-header {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dashboard-header h2 {
+        margin: 0;
+        color: var(--text-dark);
+    }
+
+    .dashboard-header p {
+        margin: 0.25rem 0 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    /* ========== SECTION TITLE ========== */
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--cream-border);
+    }
+
+    .section-title i {
+        color: var(--primary-brown);
+    }
+
+    /* ========== KPI CARDS (COMPACT) ========== */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 10px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .kpi-card:hover {
+        border-color: var(--primary-brown);
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.1);
+    }
+
+    .kpi-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        font-weight: 600;
+    }
+
+    .kpi-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--cream-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-brown);
+        font-size: 0.9rem;
+    }
+
+    .kpi-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .kpi-value small {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .kpi-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--success-color);
+    }
+
+    /* ========== CHARTS ========== */
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 10px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        gap: 1rem;
+    }
+
+    .chart-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .chart-title i {
+        color: var(--primary-brown);
+    }
+
+    .chart-container {
+        flex: 1;
+        position: relative;
+        min-height: 280px;
+    }
+
+    /* ========== DATA SECTIONS ========== */
+    .data-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .data-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 10px;
+        padding: 1.25rem;
+    }
+
+    .data-card h6 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .data-card h6 i {
+        color: var(--primary-brown);
+    }
+
+    /* ========== LIST ITEMS ========== */
+    .list-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--cream-light);
+        font-size: 0.9rem;
+    }
+
+    .list-item:last-child {
+        border-bottom: none;
+    }
+
+    .list-item-rank {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--primary-brown);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .list-item-image {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        object-fit: cover;
+    }
+
+    .list-item-main {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .list-item-name {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.85rem;
+    }
+
+    .list-item-meta {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .list-item-value {
+        font-weight: 600;
+        color: var(--text-dark);
+        text-align: right;
+    }
+
+    .badge-status {
+        display: inline-block;
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .badge-stock-low {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+    }
+
+    .badge-stock-ok {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+    }
+
+    /* ========== STATUS STATS ========== */
+    .status-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .status-bar {
+        display: grid;
+        grid-template-columns: 80px 1fr auto;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .status-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .status-bar-fill {
+        height: 6px;
+        background: var(--cream-light);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .status-bar-value {
+        width: 100%;
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .status-count {
+        font-weight: 600;
+        color: var(--text-dark);
+        min-width: 30px;
+        text-align: right;
+    }
+
+    /* ========== HOURS CHART ========== */
+    .hours-section {
+        grid-column: 1 / -1;
+    }
+
+    .hours-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 10px;
+        padding: 1.25rem;
+    }
+
+    .hours-container {
+        position: relative;
+        height: 200px;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1200px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .data-sections {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .data-sections {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-container {
+            min-height: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <!-- ========== HEADER ========== -->
+    <div class="dashboard-header">
+        <div>
+            <h2>Tableau de bord</h2>
+            <p><i class="fas fa-calendar-alt me-2" style="color: var(--primary-brown);"></i>Vue globale - <strong>{{ today|date:"l d F Y" }}</strong></p>
+        </div>
+    </div>
+
+    <!-- ========== SECTION 1 : VENTES ========== -->
+    <div class="section-title"><i class="fas fa-chart-line"></i> Ventes</div>
+    
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Aujourd'hui</span>
+                <div class="kpi-icon"><i class="fas fa-euro-sign"></i></div>
+            </div>
+            <div class="kpi-value">{{ daily_sales|floatformat:0 }}<small>€</small></div>
+            <div class="kpi-trend"><i class="fas fa-arrow-up"></i> +12%</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Ce mois</span>
+                <div class="kpi-icon"><i class="fas fa-chart-area"></i></div>
+            </div>
+            <div class="kpi-value">{{ monthly_sales|floatformat:0 }}<small>€</small></div>
+            <div class="kpi-trend"><i class="fas fa-arrow-up"></i> +8%</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Panier moyen</span>
+                <div class="kpi-icon"><i class="fas fa-shopping-basket"></i></div>
+            </div>
+            <div class="kpi-value">{{ avg_cart|floatformat:0 }}<small>€</small></div>
+            <div class="kpi-trend"><i class="fas fa-arrow-up"></i> +3%</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Taux conversion</span>
+                <div class="kpi-icon"><i class="fas fa-percent"></i></div>
+            </div>
+            <div class="kpi-value">{{ conversion_rate|floatformat:1 }}<small>%</small></div>
+            <div class="kpi-trend"><i class="fas fa-arrow-up"></i> +0.3%</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h5 class="chart-title"><i class="fas fa-chart-line"></i> Évolution des ventes</h5>
+            </div>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h5 class="chart-title"><i class="fas fa-clock"></i> Par heure</h5>
+            </div>
+            <div class="chart-container">
+                <canvas id="hoursChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SECTION 2 : COMMANDES ========== -->
+    <div class="section-title"><i class="fas fa-shopping-cart"></i> Commandes</div>
+
+    <div class="data-sections">
+        <div class="data-card">
+            <h6><i class="fas fa-tasks"></i>Statutes</h6>
+            <div class="status-bars">
+                <div class="status-bar">
+                    <span class="status-label"><span class="status-dot" style="background: #A67C52;"></span>Attente</span>
+                    <div class="status-bar-fill">
+                        <div class="status-bar-value" style="background: #A67C52; width: {{ orders_by_status.pending_pct }}%;"></div>
+                    </div>
+                    <span class="status-count">{{ orders_by_status.pending }}</span>
+                </div>
+
+                <div class="status-bar">
+                    <span class="status-label"><span class="status-dot" style="background: #FFA500;"></span>Prépa.</span>
+                    <div class="status-bar-fill">
+                        <div class="status-bar-value" style="background: #FFA500; width: {{ orders_by_status.preparing_pct }}%;"></div>
+                    </div>
+                    <span class="status-count">{{ orders_by_status.preparing }}</span>
+                </div>
+
+                <div class="status-bar">
+                    <span class="status-label"><span class="status-dot" style="background: #17a2b8;"></span>Expéd.</span>
+                    <div class="status-bar-fill">
+                        <div class="status-bar-value" style="background: #17a2b8; width: {{ orders_by_status.shipped_pct }}%;"></div>
+                    </div>
+                    <span class="status-count">{{ orders_by_status.shipped }}</span>
+                </div>
+
+                <div class="status-bar">
+                    <span class="status-label"><span class="status-dot" style="background: #28a745;"></span>Livrée</span>
+                    <div class="status-bar-fill">
+                        <div class="status-bar-value" style="background: #28a745; width: {{ orders_by_status.delivered_pct }}%;"></div>
+                    </div>
+                    <span class="status-count">{{ orders_by_status.delivered }}</span>
+                </div>
+
+                <div class="status-bar">
+                    <span class="status-label"><span class="status-dot" style="background: #dc3545;"></span>Annul.</span>
+                    <div class="status-bar-fill">
+                        <div class="status-bar-value" style="background: #dc3545; width: {{ orders_by_status.cancelled_pct }}%;"></div>
+                    </div>
+                    <span class="status-count">{{ orders_by_status.cancelled }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-card">
+            <h6><i class="fas fa-history"></i>Récentes</h6>
+            {% for order in recent_orders %}
+            <div class="list-item">
+                <span style="font-weight: 600; color: var(--text-dark);">#{{ order.number }}</span>
+                <div class="list-item-main">
+                    <div class="list-item-name">{{ order.user_name }}</div>
+                    <div class="list-item-meta">{{ order.created_at|date:"H:i" }}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; color: var(--text-dark);">{{ order.total|floatformat:0 }} €</div>
+                    <span class="badge-status" style="background: {% if order.status_key == 'pending' %}rgba(255, 193, 7, 0.1); color: #856404;{% elif order.status_key == 'shipped' %}rgba(23, 162, 184, 0.1); color: #117a8b;{% else %}rgba(40, 167, 69, 0.1); color: var(--success-color);{% endif %}">{{ order.status }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ========== SECTION 3 : PRODUITS ========== -->
+    <div class="section-title"><i class="fas fa-box"></i> Produits</div>
+
+    <div class="data-sections">
+        <div class="data-card">
+            <h6><i class="fas fa-fire"></i>Top 5 ventes</h6>
+            {% for product in top_products %}
+            <div class="list-item">
+                <div class="list-item-rank">{{ product.rank }}</div>
+                <img src="{{ product.image_url }}" alt="" class="list-item-image">
+                <div class="list-item-main">
+                    <div class="list-item-name">{{ product.name }}</div>
+                    <div class="list-item-meta">{{ product.quantity }} unités</div>
+                </div>
+                <div class="list-item-value">{{ product.revenue|floatformat:0 }} €</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="data-card">
+            <h6><i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>Stock critique</h6>
+            {% for product in critical_stock %}
+            <div class="list-item">
+                <img src="{{ product.image_url }}" alt="" class="list-item-image">
+                <div class="list-item-main">
+                    <div class="list-item-name">{{ product.name }}</div>
+                    <div class="list-item-meta">Stock: <strong>{{ product.stock }}</strong></div>
+                </div>
+                <span class="badge-status badge-stock-low">{{ product.stock }} en stock</span>
+            </div>
+            {% empty %}
+            <p class="text-muted" style="font-size: 0.85rem; margin: 0;">Aucun produit en stock critique 🎉</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ========== SECTION 4 : RÉSUMÉ ========== -->
+    <div class="section-title"><i class="fas fa-info-circle"></i> Résumé</div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Commandes</span>
+                <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+            </div>
+            <div class="kpi-value">{{ daily_orders }}<small>/ {{ monthly_orders }}</small></div>
+            <div class="kpi-trend"><i class="fas fa-arrow-up"></i> +15%</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Produits vendus</span>
+                <div class="kpi-icon"><i class="fas fa-box"></i></div>
+            </div>
+            <div class="kpi-value">{{ products_sold }}</div>
+            <div class="kpi-trend"><i class="fas fa-arrow-up"></i> +5%</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Nouveaux clients</span>
+                <div class="kpi-icon"><i class="fas fa-users"></i></div>
+            </div>
+            <div class="kpi-value">{{ new_customers_month }}</div>
+            <div class="kpi-trend"><i class="fas fa-arrow-up"></i> +26%</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-card-header">
+                <span class="kpi-label">Valeur client</span>
+                <div class="kpi-icon"><i class="fas fa-heart"></i></div>
+            </div>
+            <div class="kpi-value">{{ customer_ltv|floatformat:0 }}<small>€</small></div>
+            <div class="kpi-trend"><i class="fas fa-arrow-up"></i> +12%</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const days = {{ days|safe }};
+    const salesData = {{ sales_data_current|safe }};
+    const hoursData = {{ hours_data|safe }};
+
+    // ===== SALES CHART =====
+    const ctx1 = document.getElementById('salesChart');
+    new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: days,
+            datasets: [{
+                label: 'Ventes (€)',
+                data: salesData,
+                borderColor: '#A67C52',
+                backgroundColor: 'rgba(166, 124, 82, 0.08)',
+                borderWidth: 2.5,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#A67C52',
+                pointBorderColor: 'white',
+                pointBorderWidth: 2,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#8D6E63',
+                        callback: function(value, index) {
+                            return index % 3 === 0 ? days[index] : '';
+                        }
+                    }
+                },
+                y: {
+                    grid: { color: 'rgba(166, 124, 82, 0.1)' },
+                    ticks: { color: '#8D6E63' }
+                }
+            }
+        }
+    });
+
+    // ===== HOURS CHART =====
+    const ctx3 = document.getElementById('hoursChart');
+    new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: ['0-2h', '2-4h', '4-6h', '6-8h', '8-10h', '10-12h', '12-14h', '14-16h', '16-18h', '18-20h', '20-22h', '22-24h'],
+            datasets: [{
+                label: 'Achats',
+                data: hoursData,
+                backgroundColor: '#A67C52',
+                borderRadius: 5,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#8D6E63', font: { size: 10 } }
+                },
+                y: {
+                    grid: { color: 'rgba(166, 124, 82, 0.1)' },
+                    ticks: { color: '#8D6E63' }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

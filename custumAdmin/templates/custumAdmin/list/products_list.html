@@ -1,0 +1,794 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% block title %}Produits - Administration phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES DU THÈME ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+    }
+
+    /* ========== FILTRES PAR ONGLETS ========== */
+    .product-tabs {
+        display: flex;
+        gap: 1.5rem;
+        border-bottom: 2px solid var(--cream-border);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .product-tab-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 0;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .product-tab-link:hover {
+        color: var(--primary-brown);
+    }
+
+    .product-tab-link.active {
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+
+    .product-tab-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -0.7rem;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px 3px 0 0;
+    }
+
+    .product-tab-count {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        margin-left: 0.25rem;
+    }
+
+    /* ========== BARRE D'OUTILS ========== */
+    .toolbar-section {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        border: 2px solid var(--cream-border);
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.05);
+    }
+
+    /* Recherche */
+    .search-wrapper {
+        position: relative;
+        min-width: 280px;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        z-index: 10;
+    }
+
+    .search-input {
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1rem 0.6rem 40px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    /* Boutons de filtre */
+    .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-btn:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .filter-btn i {
+        color: var(--primary-brown);
+        font-size: 0.8rem;
+    }
+
+    /* Actions group */
+    .actions-group {
+        display: flex;
+        gap: 0.75rem;
+        margin-left: auto;
+    }
+
+    .btn-export {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-export:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+    }
+
+    .btn-add {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.6rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-add:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+        color: white;
+    }
+
+    /* ========== TABLEAU ========== */
+    .table-container {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--cream-border);
+        padding: 1rem 1.5rem;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--cream-light);
+        color: var(--text-dark);
+    }
+
+    .table tbody tr:hover td {
+        background: var(--cream-light);
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Checkbox */
+    .checkbox-custom {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--cream-border);
+        border-radius: 4px;
+        cursor: pointer;
+        accent-color: var(--primary-brown);
+    }
+
+    /* Image produit */
+    .product-image-cell {
+        width: 60px;
+        height: 60px;
+    }
+
+    .product-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 2px solid var(--cream-border);
+        transition: all 0.3s ease;
+    }
+
+    .product-image:hover {
+        border-color: var(--primary-brown);
+        transform: scale(1.05);
+    }
+
+    .product-info {
+        margin-left: 1rem;
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: var(--text-dark);
+        text-decoration: none;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-name:hover {
+        color: var(--primary-brown);
+    }
+
+    .product-sku {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+
+    /* Prix */
+    .product-price {
+        font-weight: 700;
+        color: var(--primary-dark);
+        font-size: 1.1rem;
+    }
+
+    .product-old-price {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: line-through;
+        margin-left: 0.5rem;
+    }
+
+    /* Catégorie */
+    .product-category {
+        background: var(--cream-light);
+        color: var(--text-dark);
+        padding: 0.35rem 1rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-block;
+        border: 1px solid var(--cream-border);
+    }
+
+    /* Tags */
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .product-tag {
+        background: white;
+        border: 1px solid var(--cream-border);
+        color: var(--text-dark);
+        padding: 0.25rem 0.75rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .product-tag:hover {
+        background: var(--primary-brown);
+        color: white;
+        border-color: var(--primary-brown);
+        transform: translateY(-2px);
+    }
+
+    /* Vendor */
+    .vendor-link {
+        color: var(--primary-brown);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .vendor-link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    /* Date */
+    .product-date {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    /* Favori */
+    .favorite-star {
+        color: #FFB800;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .favorite-star.far {
+        color: var(--cream-border);
+    }
+
+    .favorite-star:hover {
+        transform: scale(1.2);
+    }
+
+    /* Actions */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--cream-border);
+        background: white;
+        color: var(--text-dark);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-action:hover {
+        background: var(--cream-light);
+        border-color: var(--primary-brown);
+        color: var(--primary-brown);
+        transform: translateY(-2px);
+    }
+
+    .btn-action.delete:hover {
+        background: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    /* ========== PAGINATION ========== */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 2px solid var(--cream-border);
+        background: white;
+    }
+
+    .pagination-info {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.25rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .page-item .page-link {
+        border: 2px solid var(--cream-border);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: var(--text-dark);
+        font-weight: 600;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .page-item .page-link:hover {
+        background: var(--cream-light);
+        border-color: var(--primary-brown);
+        color: var(--primary-brown);
+        transform: translateY(-2px);
+    }
+
+    .page-item.active .page-link {
+        background: var(--primary-brown);
+        border-color: var(--primary-brown);
+        color: white;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 992px) {
+        .toolbar-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .actions-group {
+            margin-left: 0;
+            justify-content: flex-end;
+        }
+        
+        .search-wrapper {
+            width: 100%;
+        }
+        
+        .table thead th {
+            font-size: 0.7rem;
+            padding: 0.75rem;
+        }
+        
+        .table tbody td {
+            padding: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- En-tête de page -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: var(--text-dark);">Produits</h2>
+            <p class="text-muted mb-0">Gérez votre catalogue de produits</p>
+        </div>
+    </div>
+
+    <!-- FILTRES PAR ONGLETS -->
+    <div class="product-tabs">
+        <a href="?" class="product-tab-link {% if not request.GET.status %}active{% endif %}">
+            Tous <span class="product-tab-count">({{ all_count }})</span>
+        </a>
+        <a href="?status=published" class="product-tab-link {% if request.GET.status == 'published' %}active{% endif %}">
+            Publiés <span class="product-tab-count">({{ published_count }})</span>
+        </a>
+        <a href="?status=draft" class="product-tab-link {% if request.GET.status == 'draft' %}active{% endif %}">
+            Brouillons <span class="product-tab-count">({{ drafts_count }})</span>
+        </a>
+        <a href="?status=discount" class="product-tab-link {% if request.GET.status == 'discount' %}active{% endif %}">
+            En promotion <span class="product-tab-count">({{ on_discount_count }})</span>
+        </a>
+    </div>
+
+    <!-- BARRE D'OUTILS -->
+    <div class="toolbar-section">
+        <!-- Recherche -->
+        <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <form method="get">
+                <input type="text" name="q" value="{{ q|default:'' }}" class="search-input" placeholder="Rechercher un produit...">
+                <!-- Garder les autres filtres -->
+                {% if request.GET.category %}
+                    <input type="hidden" name="category" value="{{ request.GET.category }}">
+                {% endif %}
+                {% if request.GET.vendor %}
+                    <input type="hidden" name="vendor" value="{{ request.GET.vendor }}">
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Filtres déroulants -->
+        <div class="filter-group">
+            <!-- Filtre Catégorie -->
+            <div class="dropdown">
+                <button class="filter-btn dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-layer-group"></i> Catégorie
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}">Toutes les catégories</a></li>
+                    {% for c in categories %}
+                        <li>
+                            <a class="dropdown-item {% if request.GET.category|stringformat:'s' == c.id|stringformat:'s' %}active{% endif %}" 
+                               href="?{% if q %}q={{ q }}&{% endif %}category={{ c.id }}">
+                                {{ c.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Filtre Fournisseur -->
+            <div class="dropdown">
+                <button class="filter-btn dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-store"></i> Fournisseur
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}">Tous les fournisseurs</a></li>
+                    {% for b in brands %}
+                        <li>
+                            <a class="dropdown-item {% if request.GET.vendor|stringformat:'s' == b.id|stringformat:'s' %}active{% endif %}" 
+                               href="?{% if q %}q={{ q }}&{% endif %}vendor={{ b.id }}">
+                                {{ b.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Filtre supplémentaire -->
+            <button class="filter-btn">
+                <i class="fa-solid fa-sliders"></i> Plus de filtres
+            </button>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="actions-group">
+            <button class="btn-export">
+                <i class="fa-solid fa-download me-1"></i> Exporter
+            </button>
+            <a href="{% url 'product_add' %}" class="btn-add">
+                <i class="fa-solid fa-plus"></i> Ajouter un produit
+            </a>
+        </div>
+    </div>
+
+    <!-- TABLEAU DES PRODUITS -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" class="checkbox-custom" id="checkAll">
+                    </th>
+                    <th>Produit</th>
+                    <th style="width: 100px;">Prix</th>
+                    <th style="width: 120px;">Catégorie</th>
+                    <th style="width: 200px;">Tags</th>
+                    <th style="width: 120px;">Fournisseur</th>
+                    <th style="width: 100px;">Publié le</th>
+                    <th style="width: 60px;" class="text-center">Fav</th>
+                    <th style="width: 120px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <!-- Checkbox -->
+                    <td>
+                        <input type="checkbox" class="checkbox-custom row-check" value="{{ p.id }}">
+                    </td>
+
+                    <!-- Produit avec image -->
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="product-image-cell">
+                                {% if p.main_image_url %}
+                                    <img src="{{ p.main_image_url }}" class="product-image" alt="{{ p.name }}">
+                                {% else %}
+                                    <img src="https://placehold.co/60x60/F7F3E9/A67C52?text=📦" class="product-image" alt="{{ p.name }}">
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <a href="{% url 'product_detail' p.id %}" class="product-name">
+                                    {{ p.name|truncatechars:35 }}
+                                </a>
+                                {% if p.sku %}
+                                    <div class="product-sku">SKU: {{ p.sku }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Prix -->
+                    <td>
+                        <span class="product-price">${{ p.price }}</span>
+                        {% if p.old_price %}
+                            <span class="product-old-price">${{ p.old_price }}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Catégorie -->
+                    <td>
+                        {% if p.category %}
+                            <span class="product-category">{{ p.category.name }}</span>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Tags -->
+                    <td>
+                        <div class="tags-container">
+                            {% if p.tags.all %}
+                                {% for t in p.tags.all|slice:":3" %}
+                                    <a href="?tag={{ t.id }}" class="product-tag">{{ t.name }}</a>
+                                {% endfor %}
+                                {% if p.tags.all|length > 3 %}
+                                    <span class="product-tag">+{{ p.tags.all|length|add:"-3" }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <!-- Fournisseur -->
+                    <td>
+                        {% if p.brand %}
+                            <a href="?vendor={{ p.brand.id }}" class="vendor-link">{{ p.brand.name }}</a>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Date -->
+                    <td>
+                        <span class="product-date">{{ p.created_at|date:"d M, H:i" }}</span>
+                    </td>
+
+                    <!-- Favori -->
+                    <td class="text-center">
+                        <i class="fa-{% if p.is_favorite %}solid{% else %}regular{% endif %} fa-star favorite-star" 
+                           data-product-id="{{ p.id }}"></i>
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'product_edit' p.id %}" class="btn-action" title="Modifier">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <a href="{% url 'product_detail' p.id %}" class="btn-action" title="Voir">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <button type="button" class="btn-action delete btn-delete" 
+                                    data-url="{% url 'product_delete' p.id %}" 
+                                    data-name="{{ p.name|escape }}" 
+                                    title="Supprimer">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center py-5">
+                        <i class="fa-solid fa-box-open fa-3x mb-3" style="color: var(--cream-border);"></i>
+                        <h5 style="color: var(--text-dark);">Aucun produit trouvé</h5>
+                        <p class="text-muted">Essayez de modifier vos filtres ou <a href="{% url 'product_add' %}">ajoutez un nouveau produit</a></p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- PAGINATION -->
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ paginator.count }} produits
+                <a href="#" class="ms-3" style="color: var(--primary-brown); text-decoration: none; font-weight: 600;">
+                    Voir tout <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.vendor %}vendor={{ request.GET.vendor }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.vendor %}vendor={{ request.GET.vendor }}&{% endif %}page={{ num }}">
+                                {{ num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.vendor %}vendor={{ request.GET.vendor }}&{% endif %}page={{ page_obj.next_page_number }}">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check all / Uncheck all
+        const checkAll = document.getElementById('checkAll');
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                document.querySelectorAll('.row-check').forEach(cb => {
+                    cb.checked = this.checked;
+                });
+            });
+        }
+
+        // Favorite toggle avec effet visuel
+        document.querySelectorAll('.favorite-star').forEach(star => {
+            star.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Animation de coeur battant
+                this.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 200);
+                
+                // Toggle entre solid et regular
+                if (this.classList.contains('fa-regular')) {
+                    this.classList.remove('fa-regular');
+                    this.classList.add('fa-solid');
+                } else {
+                    this.classList.remove('fa-solid');
+                    this.classList.add('fa-regular');
+                }
+                
+                // Ici vous pouvez ajouter un appel AJAX pour sauvegarder l'état
+                console.log('Toggle favorite for product', this.dataset.productId);
+            });
+        });
+
+        // Auto-submit search after typing (optionnel)
+        let searchTimeout;
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.form.submit();
+                }, 500); // Attend 500ms après la frappe
+            });
+        }
+    });
+</script>
+{% endblock %}

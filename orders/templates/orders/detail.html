@@ -1,0 +1,26 @@
+{% extends "core/base.html" %}
+{% block title %}Commande #{{ order.id }}{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card p-4">
+        <h2>Commande #{{ order.id }}</h2>
+        <p>Statut: {{ order.get_status_display }}</p>
+        <p>Total: {{ order.total }} €</p>
+        <h4>Articles</h4>
+        <ul>
+            {% for item in order.items.all %}
+                <li>{{ item.quantity }} × {{ item.product.name }} — {{ item.price }} €</li>
+            {% endfor %}
+        </ul>
+        <h4>Livraison</h4>
+        {% if order.shippingaddress %}
+        <p>{{ order.shippingaddress.address }}, {{ order.shippingaddress.city }} {{ order.shippingaddress.postal_code }}, {{ order.shippingaddress.country }}</p>
+        {% endif %}
+        <h4>Paiement</h4>
+        {% if order.payment %}
+        <p>Méthode: {{ order.payment.get_method_display }} — Statut: {{ order.payment.get_status_display }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

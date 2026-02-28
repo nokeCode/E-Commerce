@@ -1,0 +1,822 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% block title %}Commandes - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --info-color: #17a2b8;
+    }
+
+    /* ========== FILTRES PAR ONGLETS ========== */
+    .order-tabs {
+        display: flex;
+        gap: 1.5rem;
+        border-bottom: 2px solid var(--cream-border);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .order-tab-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 0;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .order-tab-link:hover {
+        color: var(--primary-brown);
+    }
+
+    .order-tab-link.active {
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+
+    .order-tab-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -0.7rem;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px 3px 0 0;
+    }
+
+    .order-tab-count {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        margin-left: 0.25rem;
+    }
+
+    /* ========== BARRE D'OUTILS ========== */
+    .toolbar-section {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        border: 2px solid var(--cream-border);
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.05);
+    }
+
+    .search-wrapper {
+        position: relative;
+        min-width: 280px;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        z-index: 10;
+    }
+
+    .search-input {
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1rem 0.6rem 40px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-btn:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .actions-group {
+        display: flex;
+        gap: 0.75rem;
+        margin-left: auto;
+    }
+
+    .btn-export {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-export:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+    }
+
+    /* ========== TABLEAU ========== */
+    .table-container {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        overflow: auto;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+    }
+
+    .table {
+        min-width: 1200px;
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--cream-border);
+        padding: 1rem 1.5rem;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--cream-light);
+        color: var(--text-dark);
+    }
+
+    .table tbody tr:hover td {
+        background: var(--cream-light);
+    }
+
+    /* ========== STATUTS ========== */
+    .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.1);
+        color: #856404;
+        border: 1px solid var(--warning-color);
+    }
+
+    .status-preparing {
+        background: rgba(23, 162, 184, 0.1);
+        color: #117a8b;
+        border: 1px solid var(--info-color);
+    }
+
+    .status-shipped {
+        background: rgba(102, 126, 234, 0.1);
+        color: #4a5fc1;
+        border: 1px solid #667eea;
+    }
+
+    .status-delivered {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+    }
+
+    .status-cancelled {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+        border: 1px solid var(--danger-color);
+    }
+
+    .status-refunded {
+        background: rgba(108, 117, 125, 0.1);
+        color: var(--text-muted);
+        border: 1px solid var(--text-muted);
+    }
+
+    .status-completed {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+    }
+
+    .status-failed {
+        background: rgba(220, 53, 69, 0.15);
+        color: #856404;
+        border: 1px solid var(--danger-color);
+    }
+
+    /* ========== STATUS DROPDOWN ========== */
+    .status-cell {
+        position: relative;
+    }
+
+    .status-badge {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .status-badge:hover {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+
+    .status-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        min-width: 200px;
+        margin-top: 0.5rem;
+    }
+
+    .dropdown-content {
+        padding: 0.5rem 0;
+    }
+
+    .dropdown-option {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-dark);
+        border-left: 3px solid transparent;
+    }
+
+    .dropdown-option:hover {
+        background: var(--cream-light);
+        border-left-color: var(--primary-brown);
+        color: var(--primary-dark);
+        padding-left: 1.3rem;
+    }
+
+    .dropdown-option.loading {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* ========== ACTIONS ========== */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--cream-border);
+        background: white;
+        color: var(--text-dark);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-action:hover {
+        background: var(--cream-light);
+        border-color: var(--primary-brown);
+        color: var(--primary-brown);
+        transform: translateY(-2px);
+    }
+
+    .order-number-link {
+        color: var(--primary-brown);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .order-number-link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .customer-link {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .customer-link:hover {
+        color: var(--primary-brown);
+    }
+
+    .amount {
+        font-weight: 700;
+        color: var(--primary-dark);
+    }
+
+    /* ========== PAGINATION ========== */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 2px solid var(--cream-border);
+        background: white;
+    }
+
+    .pagination-info {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.25rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .page-item .page-link {
+        border: 2px solid var(--cream-border);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: var(--text-dark);
+        font-weight: 600;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .page-item .page-link:hover {
+        background: var(--cream-light);
+        border-color: var(--primary-brown);
+        color: var(--primary-brown);
+        transform: translateY(-2px);
+    }
+
+    .page-item.active .page-link {
+        background: var(--primary-brown);
+        border-color: var(--primary-brown);
+        color: white;
+    }
+
+    /* ========== BADGES ========== */
+    .payment-method-badge {
+        background: var(--cream-light);
+        padding: 0.25rem 0.75rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        display: inline-block;
+    }
+
+    @media (max-width: 992px) {
+        .toolbar-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .actions-group {
+            margin-left: 0;
+            justify-content: flex-end;
+        }
+        
+        .search-wrapper {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: var(--text-dark);">Commandes</h2>
+            <p class="text-muted mb-0">Gérez et suivez les commandes de vos clients</p>
+        </div>
+    </div>
+
+    <!-- FILTRES PAR ONGLETS -->
+    <div class="order-tabs">
+        <a href="?" class="order-tab-link {% if not request.GET.status %}active{% endif %}">
+            Toutes <span class="order-tab-count">({{ total_count }})</span>
+        </a>
+        <a href="?status=pending" class="order-tab-link {% if request.GET.status == 'pending' %}active{% endif %}">
+            En attente <span class="order-tab-count">({{ pending_count }})</span>
+        </a>
+        <a href="?status=preparing" class="order-tab-link {% if request.GET.status == 'preparing' %}active{% endif %}">
+            En préparation <span class="order-tab-count">({{ preparing_count }})</span>
+        </a>
+        <a href="?status=shipped" class="order-tab-link {% if request.GET.status == 'shipped' %}active{% endif %}">
+            Expédiées <span class="order-tab-count">({{ shipped_count }})</span>
+        </a>
+        <a href="?status=delivered" class="order-tab-link {% if request.GET.status == 'delivered' %}active{% endif %}">
+            Livrées <span class="order-tab-count">({{ delivered_count }})</span>
+        </a>
+        <a href="?status=completed" class="order-tab-link {% if request.GET.status == 'completed' %}active{% endif %}">
+            Complétées <span class="order-tab-count">({{ completed_count }})</span>
+        </a>
+        <a href="?status=cancelled" class="order-tab-link {% if request.GET.status == 'cancelled' %}active{% endif %}">
+            Annulées <span class="order-tab-count">({{ cancelled_count }})</span>
+        </a>
+    </div>
+
+    <!-- BARRE D'OUTILS -->
+    <div class="toolbar-section">
+        <!-- Recherche -->
+        <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <form method="get">
+                <input type="text" name="q" value="{{ q|default:'' }}" class="search-input" 
+                       placeholder="Rechercher une commande ou un client...">
+                {% if request.GET.status %}
+                    <input type="hidden" name="status" value="{{ request.GET.status }}">
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Filtres -->
+        <div class="filter-group">
+            <div class="dropdown">
+                <button class="filter-btn dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-calendar"></i> Période
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}">Toutes</a></li>
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}period=today">Aujourd'hui</a></li>
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}period=week">Cette semaine</a></li>
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}period=month">Ce mois</a></li>
+                </ul>
+            </div>
+
+            <div class="dropdown">
+                <button class="filter-btn dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-credit-card"></i> Paiement
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}">Tous</a></li>
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}payment=paid">Payé</a></li>
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}payment=pending">En attente</a></li>
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}payment=failed">Échoué</a></li>
+                </ul>
+            </div>
+
+            <button class="filter-btn">
+                <i class="fa-solid fa-sliders"></i> Plus de filtres
+            </button>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="actions-group">
+            <button class="btn-export">
+                <i class="fa-solid fa-file-export"></i> Exporter
+            </button>
+        </div>
+    </div>
+
+    <!-- TABLEAU DES COMMANDES -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 40px;"><input type="checkbox" class="checkbox-custom" id="checkAll"></th>
+                    <th>N° Commande</th>
+                    <th>Client</th>
+                    <th>Montant total</th>
+                    <th>Statut</th>
+                    <th>Paiement</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <!-- Checkbox -->
+                    <td><input type="checkbox" class="checkbox-custom row-check" value="{{ order.id }}"></td>
+
+                    <!-- N° Commande -->
+                    <td>
+                        <a href="{% url 'order_detail' order.id %}" class="order-number-link">
+                            #{{ order.order_number|default:order.id }}
+                        </a>
+                        {% if order.is_priority %}
+                            <span class="badge" style="background: var(--primary-brown); color: white; margin-left: 0.5rem;">Priorité</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Client -->
+                    <td>
+                        <a href="{% url 'client_detail' order.user.id %}" class="customer-link">
+                            {{ order.user.get_full_name|default:order.user.username }}
+                        </a>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                            {{ order.user.email }}
+                        </div>
+                    </td>
+
+                    <!-- Montant total -->
+                    <td>
+                        <span class="amount">${{ order.total|floatformat:2 }}</span>
+                    </td>
+
+                    <!-- Statut -->
+                    <td>
+                        <div class="status-cell" data-order-id="{{ order.id }}" data-current-status="{{ order.status }}">
+                            {% if order.status == 'pending' %}
+                                <span class="status-badge status-pending" onclick="toggleStatusDropdown(event, {{ order.id }})">
+                                    <i class="fa-solid fa-clock"></i> En attente
+                                </span>
+                            {% elif order.status == 'preparing' %}
+                                <span class="status-badge status-preparing" onclick="toggleStatusDropdown(event, {{ order.id }})">
+                                    <i class="fa-solid fa-box"></i> En préparation
+                                </span>
+                            {% elif order.status == 'shipped' %}
+                                <span class="status-badge status-shipped" onclick="toggleStatusDropdown(event, {{ order.id }})">
+                                    <i class="fa-solid fa-truck"></i> Expédiée
+                                </span>
+                            {% elif order.status == 'delivered' %}
+                                <span class="status-badge status-delivered" onclick="toggleStatusDropdown(event, {{ order.id }})">
+                                    <i class="fa-solid fa-circle-check"></i> Livrée
+                                </span>
+                            {% elif order.status == 'completed' %}
+                                <span class="status-badge status-completed" onclick="toggleStatusDropdown(event, {{ order.id }})">
+                                    <i class="fa-solid fa-circle-check"></i> Complétée
+                                </span>
+                            {% elif order.status == 'cancelled' %}
+                                <span class="status-badge status-cancelled">
+                                    <i class="fa-solid fa-circle-xmark"></i> Annulée
+                                </span>
+                            {% elif order.status == 'failed' %}
+                                <span class="status-badge status-failed" onclick="toggleStatusDropdown(event, {{ order.id }})">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Échouée
+                                </span>
+                            {% endif %}
+                            <div class="status-dropdown" id="dropdown-{{ order.id }}" style="display: none;">
+                                <div class="dropdown-content">
+                                    <!-- Les transitions seront remplies par JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Paiement -->
+                    <td>
+                        <span class="payment-method-badge">
+                            {% if order.payment.method == 'card' %}
+                                <i class="fa-solid fa-credit-card"></i> Carte
+                            {% elif order.payment.method == 'paypal' %}
+                                <i class="fa-brands fa-paypal"></i> PayPal
+                            {% elif order.payment.method == 'bank' %}
+                                <i class="fa-solid fa-building-columns"></i> Virement
+                            {% else %}
+                                {{ order.payment.method|default:"-" }}
+                            {% endif %}
+                        </span>
+                    </td>
+
+                    <!-- Date -->
+                    <td>
+                        <span title="{{ order.created_at|date:'d/m/Y H:i' }}">
+                            {{ order.created_at|date:"d/m/Y" }}
+                        </span>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">
+                            {{ order.created_at|timesince }}
+                        </div>
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'order_detail' order.id %}" class="btn-action" title="Voir détails">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <a href="#" class="btn-action" title="Facture">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <i class="fa-solid fa-truck fa-3x mb-3" style="color: var(--cream-border);"></i>
+                        <h5 style="color: var(--text-dark);">Aucune commande trouvée</h5>
+                        <p class="text-muted">Les commandes apparaîtront ici quand des clients achèteront</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- PAGINATION -->
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ paginator.count }} commandes
+            </div>
+
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}page={{ num }}">
+                                {{ num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}page={{ page_obj.next_page_number }}">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check all / Uncheck all
+        const checkAll = document.getElementById('checkAll');
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                document.querySelectorAll('.row-check').forEach(cb => {
+                    cb.checked = this.checked;
+                });
+            });
+        }
+
+        // Auto-submit search after typing (optionnel)
+        let searchTimeout;
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.form.submit();
+                }, 500);
+            });
+        }
+
+        // ========== GESTION DES CHANGEMENTS DE STATUT ==========
+        window.toggleStatusDropdown = function(event, orderId) {
+            event.stopPropagation();
+            const dropdown = document.getElementById(`dropdown-${orderId}`);
+            
+            // Fermer tous les autres dropdowns
+            document.querySelectorAll('.status-dropdown').forEach(el => {
+                if (el.id !== `dropdown-${orderId}`) el.style.display = 'none';
+            });
+            
+            // Bascule du dropdown
+            if (dropdown.style.display === 'none') {
+                loadAllowedTransitions(orderId);
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        };
+
+        window.loadAllowedTransitions = async function(orderId) {
+            // Pour cette première version, nous chargeons les transitions côté client
+            // En production, on pourrait faire un appel AJAX au backend
+            const statusMap = {
+                'pending': {allowed: ['preparing', 'cancelled'], labels: {'preparing': 'Commencer la préparation', 'cancelled': 'Annuler'}},
+                'preparing': {allowed: ['shipped', 'pending'], labels: {'shipped': 'Expédier', 'pending': 'Retour en attente'}},
+                'shipped': {allowed: ['delivered'], labels: {'delivered': 'Marquer comme livrée'}},
+                'delivered': {allowed: [], labels: {}},
+                'completed': {allowed: [], labels: {}},
+                'cancelled': {allowed: [], labels: {}},
+                'failed': {allowed: ['pending'], labels: {'pending': 'Relancer la commande'}}
+            };
+
+            const cell = document.querySelector(`[data-order-id="${orderId}"]`);
+            const currentStatus = cell.dataset.currentStatus;
+            const transitions = statusMap[currentStatus] || {allowed: [], labels: {}};
+            
+            const dropdown = document.getElementById(`dropdown-${orderId}`);
+            const content = dropdown.querySelector('.dropdown-content');
+            
+            if (transitions.allowed.length === 0) {
+                content.innerHTML = '<div style="padding: 0.75rem 1rem; color: var(--text-muted);">Aucune transition disponible</div>';
+            } else {
+                content.innerHTML = transitions.allowed.map(status => `
+                    <div class="dropdown-option" onclick="updateOrderStatus(${orderId}, '${status}', event)">
+                        <i class="fa-solid fa-arrow-right"></i>
+                        ${transitions.labels[status] || status}
+                    </div>
+                `).join('');
+            }
+        };
+
+        window.updateOrderStatus = async function(orderId, newStatus, event) {
+            event.stopPropagation();
+            
+            const option = event.currentTarget;
+            option.classList.add('loading');
+            option.style.pointerEvents = 'none';
+            
+            try {
+                const response = await fetch('{% url "update_order_status" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        status: newStatus
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Mettre à jour le statut dans la table
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + (data.error || 'Impossible de changer le statut'));
+                    option.classList.remove('loading');
+                    option.style.pointerEvents = 'auto';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Une erreur est survenue');
+                option.classList.remove('loading');
+                option.style.pointerEvents = 'auto';
+            }
+        };
+
+        // Fermer les dropdowns quand on clique ailleurs
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.status-cell')) {
+                document.querySelectorAll('.status-dropdown').forEach(el => el.style.display = 'none');
+            }
+        });
+    });
+</script>
+{% endblock %}

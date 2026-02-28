@@ -1,0 +1,807 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% block title %}Clients - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+    }
+
+    /* ========== FILTRES PAR ONGLETS ========== */
+    .client-tabs {
+        display: flex;
+        gap: 1.5rem;
+        border-bottom: 2px solid var(--cream-border);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .client-tab-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 0;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .client-tab-link:hover {
+        color: var(--primary-brown);
+    }
+
+    .client-tab-link.active {
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+
+    .client-tab-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -0.7rem;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px 3px 0 0;
+    }
+
+    .client-tab-count {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        margin-left: 0.25rem;
+    }
+
+    /* ========== BARRE D'OUTILS ========== */
+    .toolbar-section {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        border: 2px solid var(--cream-border);
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.05);
+    }
+
+    .search-wrapper {
+        position: relative;
+        min-width: 280px;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        z-index: 10;
+    }
+
+    .search-input {
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1rem 0.6rem 40px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-btn:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .filter-btn i {
+        color: var(--primary-brown);
+        font-size: 0.8rem;
+    }
+
+    .actions-group {
+        display: flex;
+        gap: 0.75rem;
+        margin-left: auto;
+    }
+
+    .btn-export {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-export:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+    }
+
+    .btn-add {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.6rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-add:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+        color: white;
+    }
+
+    /* ========== TABLEAU ========== */
+    .table-container {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        overflow: auto;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+    }
+
+    .table {
+        min-width: 1400px;
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--cream-border);
+        padding: 1rem 1.5rem;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--cream-light);
+        color: var(--text-dark);
+    }
+
+    .table tbody tr:hover td {
+        background: var(--cream-light);
+    }
+
+    .table tbody tr.disabled td {
+        opacity: 0.6;
+        background: #f9f9f9;
+    }
+
+    /* ========== AVATAR ========== */
+    .client-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--cream-border);
+    }
+
+    .client-avatar-initial {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--cream-light);
+        color: var(--primary-brown);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 18px;
+        border: 2px solid var(--cream-border);
+    }
+
+    .client-info {
+        margin-left: 0.75rem;
+    }
+
+    .client-name {
+        font-weight: 600;
+        color: var(--text-dark);
+        text-decoration: none;
+    }
+
+    .client-name:hover {
+        color: var(--primary-brown);
+    }
+
+    .client-username {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    /* ========== STATUT ========== */
+    .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+    }
+
+    .status-inactive {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+        border: 1px solid var(--danger-color);
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.1);
+        color: #856404;
+        border: 1px solid var(--warning-color);
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .3s;
+        border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: var(--primary-brown);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+
+    /* ========== ACTIONS ========== */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--cream-border);
+        background: white;
+        color: var(--text-dark);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-action:hover {
+        background: var(--cream-light);
+        border-color: var(--primary-brown);
+        color: var(--primary-brown);
+        transform: translateY(-2px);
+    }
+
+    .btn-action.delete:hover {
+        background: var(--danger-color);
+        border-color: var(--danger-color);
+        color: white;
+    }
+
+    /* ========== VIP BADGE ========== */
+    .vip-badge {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-left: 0.5rem;
+    }
+
+    /* ========== PAGINATION ========== */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 2px solid var(--cream-border);
+        background: white;
+    }
+
+    .pagination-info {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.25rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .page-item .page-link {
+        border: 2px solid var(--cream-border);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: var(--text-dark);
+        font-weight: 600;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .page-item .page-link:hover {
+        background: var(--cream-light);
+        border-color: var(--primary-brown);
+        color: var(--primary-brown);
+        transform: translateY(-2px);
+    }
+
+    .page-item.active .page-link {
+        background: var(--primary-brown);
+        border-color: var(--primary-brown);
+        color: white;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 992px) {
+        .toolbar-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .actions-group {
+            margin-left: 0;
+            justify-content: flex-end;
+        }
+        
+        .search-wrapper {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: var(--text-dark);">Clients</h2>
+            <p class="text-muted mb-0">Gérez votre base de clients</p>
+        </div>
+    </div>
+
+    <!-- FILTRES PAR ONGLETS -->
+    <div class="client-tabs">
+        <a href="?" class="client-tab-link {% if not request.GET.filter %}active{% endif %}">
+            Tous <span class="client-tab-count">({{ total_clients }})</span>
+        </a>
+        <a href="?filter=active" class="client-tab-link {% if request.GET.filter == 'active' %}active{% endif %}">
+            Actifs <span class="client-tab-count">({{ active_count }})</span>
+        </a>
+        <a href="?filter=inactive" class="client-tab-link {% if request.GET.filter == 'inactive' %}active{% endif %}">
+            Inactifs <span class="client-tab-count">({{ inactive_count }})</span>
+        </a>
+        <a href="?filter=new" class="client-tab-link {% if request.GET.filter == 'new' %}active{% endif %}">
+            Nouveaux <span class="client-tab-count">({{ new_clients_count }})</span>
+        </a>
+        <a href="?filter=vip" class="client-tab-link {% if request.GET.filter == 'vip' %}active{% endif %}">
+            VIP <span class="client-tab-count">({{ vip_count }})</span>
+        </a>
+        <a href="?filter=abandoned" class="client-tab-link">
+            Panier abandonné <span class="client-tab-count">({{ abandoned_count }})</span>
+        </a>
+    </div>
+
+    <!-- BARRE D'OUTILS -->
+    <div class="toolbar-section">
+        <!-- Recherche -->
+        <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <form method="get">
+                <input type="text" name="q" value="{{ q|default:'' }}" class="search-input" 
+                       placeholder="Rechercher un client...">
+                {% if request.GET.filter %}
+                    <input type="hidden" name="filter" value="{{ request.GET.filter }}">
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Filtres -->
+        <div class="filter-group">
+            <div class="dropdown">
+                <button class="filter-btn dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-globe"></i> Pays
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}">Tous les pays</a></li>
+                    {% for country in countries %}
+                        <li>
+                            <a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}country={{ country|urlencode }}">
+                                {{ country }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="dropdown">
+                <button class="filter-btn dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-crown"></i> Statut
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}">Tous</a></li>
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}vip=1">VIP</a></li>
+                    <li><a class="dropdown-item" href="?{% if q %}q={{ q }}&{% endif %}newsletter=1">Abonné newsletter</a></li>
+                </ul>
+            </div>
+
+            <button class="filter-btn">
+                <i class="fa-solid fa-sliders"></i> Plus de filtres
+            </button>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="actions-group">
+            <button class="btn-export">
+                <i class="fa-solid fa-file-export"></i> Exporter
+            </button>
+            <a href="{% url 'client_add' %}" class="btn-add">
+                <i class="fa-solid fa-plus"></i> Ajouter client
+            </a>
+        </div>
+    </div>
+
+    <!-- TABLEAU DES CLIENTS -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 40px;"><input type="checkbox" class="checkbox-custom" id="checkAll"></th>
+                    <th>Client</th>
+                    <th>Email</th>
+                    <th>Commandes</th>
+                    <th>Total dépensé</th>
+                    <th>Ville</th>
+                    <th>Dernière visite</th>
+                    <th>Dernière commande</th>
+                    <th>Statut</th>
+                    <th style="width: 100px;">Actif</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in Clients %}
+                <tr class="{% if not c.is_active %}disabled{% endif %}">
+                    <!-- Checkbox -->
+                    <td><input type="checkbox" class="checkbox-custom row-check" value="{{ c.id }}"></td>
+
+                    <!-- Client -->
+                    <td>
+                        <div class="d-flex align-items-center">
+                            {% if c.photo %}
+                                <img src="{{ c.photo.url }}" class="client-avatar" alt="{{ c.name }}">
+                            {% else %}
+                                <div class="client-avatar-initial">
+                                    {{ c.first_name|first|upper }}{{ c.last_name|first|upper }}
+                                </div>
+                            {% endif %}
+                            <div class="client-info">
+                                <a href="{% url 'client_detail' c.id %}" class="client-name">
+                                    {{ c.username }}
+                                </a>
+                                <div class="client-username">@{{ c.username }}</div>
+                                {% if c.is_vip %}
+                                    <span class="vip-badge">VIP</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Email -->
+                    <td><a href="mailto:{{ c.email }}" style="color: var(--primary-brown);">{{ c.email }}</a></td>
+
+                    <!-- Commandes -->
+                    <td class="text-center fw-bold">{{ c.orders_count|default:"0" }}</td>
+
+                    <!-- Total dépensé -->
+                    <td class="fw-bold" style="color: var(--primary-dark);">
+                        ${{ c.total_spent|floatformat:2|default:"0.00" }}
+                    </td>
+
+                    <!-- Ville -->
+                    <td>{{ c.city|default:"-" }}</td>
+
+                    <!-- Dernière visite -->
+                    <td>
+                        {% if c.last_login %}
+                            <span title="{{ c.last_login|date:'d/m/Y H:i' }}">
+                                {{ c.last_login|timesince }}
+                            </span>
+                        {% else %}
+                            <span class="text-muted">Jamais</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Dernière commande -->
+                    <td>
+                        {% if c.last_order %}
+                            {{ c.last_order|date:"d/m H:i" }}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Statut -->
+                    <td>
+                        {% if c.is_active %}
+                            <span class="status-badge status-active">
+                                <i class="fa-solid fa-circle-check"></i> Actif
+                            </span>
+                        {% else %}
+                            <span class="status-badge status-inactive">
+                                <i class="fa-solid fa-circle-xmark"></i> Inactif
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Toggle Actif/Inactif -->
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="toggle-status" 
+                                   data-client-id="{{ c.id }}"
+                                   {% if c.is_active %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'client_detail' c.id %}" class="btn-action" title="Voir">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <a href="{% url 'client_edit' c.id %}" class="btn-action" title="Modifier">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <button type="button" class="btn-action delete btn-delete" 
+                                    data-url="{% url 'client_delete' c.id %}" 
+                                    data-name="{{ c.username|escape }}" 
+                                    title="Supprimer">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="11" class="text-center py-5">
+                        <i class="fa-solid fa-users fa-3x mb-3" style="color: var(--cream-border);"></i>
+                        <h5 style="color: var(--text-dark);">Aucun client trouvé</h5>
+                        <p class="text-muted">Essayez de modifier vos filtres ou <a href="{% url 'client_add' %}">ajoutez un nouveau client</a></p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- PAGINATION -->
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ paginator.count }} clients
+            </div>
+
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if request.GET.filter %}filter={{ request.GET.filter }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if request.GET.filter %}filter={{ request.GET.filter }}&{% endif %}page={{ num }}">
+                                {{ num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if request.GET.filter %}filter={{ request.GET.filter }}&{% endif %}page={{ page_obj.next_page_number }}">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check all / Uncheck all
+        const checkAll = document.getElementById('checkAll');
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                document.querySelectorAll('.row-check').forEach(cb => {
+                    cb.checked = this.checked;
+                });
+            });
+        }
+
+        // ========== ACTIVATION/DÉSACTIVATION DES CLIENTS ==========
+        document.querySelectorAll('.toggle-status').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const clientId = this.dataset.clientId;
+                const isActive = this.checked;
+                const row = this.closest('tr');
+                
+                // Animation de chargement
+                this.disabled = true;
+                
+                // Appel AJAX pour changer le statut
+                fetch(`/admin/clients/${clientId}/toggle-status/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ active: isActive })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mettre à jour l'affichage
+                        const statusCell = row.querySelector('td:nth-child(9)');
+                        if (isActive) {
+                            statusCell.innerHTML = '<span class="status-badge status-active"><i class="fa-solid fa-circle-check"></i> Actif</span>';
+                            row.classList.remove('disabled');
+                        } else {
+                            statusCell.innerHTML = '<span class="status-badge status-inactive"><i class="fa-solid fa-circle-xmark"></i> Inactif</span>';
+                            row.classList.add('disabled');
+                        }
+                        
+                        // Afficher une notification
+                        showToast(isActive ? 'Client activé' : 'Client désactivé', 'success');
+                    } else {
+                        // Revenir en arrière en cas d'erreur
+                        this.checked = !isActive;
+                        showToast('Erreur lors du changement de statut', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.checked = !isActive;
+                    showToast('Erreur de connexion', 'error');
+                })
+                .finally(() => {
+                    this.disabled = false;
+                });
+            });
+        });
+
+        // Fonction d'affichage des notifications
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed bottom-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <i class="fa-solid fa-${type === 'success' ? 'circle-check' : 'circle-exclamation'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Auto-submit search after typing (optionnel)
+        let searchTimeout;
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.form.submit();
+                }, 500);
+            });
+        }
+    });
+</script>
+{% endblock %}

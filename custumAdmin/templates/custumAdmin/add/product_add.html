@@ -1,0 +1,661 @@
+﻿{% extends "custumAdmin/base_admin.html" %}
+{% block title %}Ajouter un produit - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+    }
+
+    /* ========== EN-TÃŠTE ========== */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        color: var(--text-dark);
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header h2:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px;
+    }
+
+    .btn-header {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-discard {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.75rem 1.5rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-discard:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-publish {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-publish:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+    }
+
+    /* ========== CARTES ========== */
+    .form-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .form-card:hover {
+        border-color: var(--primary-brown);
+        box-shadow: 0 12px 30px rgba(166, 124, 82, 0.1);
+    }
+
+    .form-card h5 {
+        color: var(--text-dark);
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-card h5 i {
+        color: var(--primary-brown);
+        font-size: 1.2rem;
+    }
+
+    /* ========== FORMULAIRES ========== */
+    .form-label {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid var(--cream-border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    .form-control-lg {
+        padding: 1rem 1.25rem;
+        font-size: 1.1rem;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 150px;
+    }
+
+    /* ========== DROPZONE ========== */
+    .dropzone {
+        background: var(--cream-light);
+        border: 2px dashed var(--cream-border);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .dropzone:hover {
+        background: white;
+        border-color: var(--primary-brown);
+    }
+
+    .dropzone.drag-active {
+        background: white;
+        border-color: var(--primary-brown) !important;
+        transform: scale(1.02);
+    }
+
+    .dropzone p {
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+    }
+
+    .dropzone a {
+        color: var(--primary-brown);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .dropzone a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .dropzone i {
+        color: var(--cream-border);
+        font-size: 2.5rem;
+    }
+
+    .preview-img {
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin: 0.5rem;
+        border: 2px solid var(--cream-border);
+        transition: all 0.3s ease;
+    }
+
+    .preview-img:hover {
+        border-color: var(--primary-brown);
+        transform: scale(1.05);
+    }
+
+    /* ========== ONGLETS INVENTAIRE ========== */
+    .inventory-container {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .inventory-tabs {
+        background: var(--cream-light);
+        border-right: 2px solid var(--cream-border);
+        height: 100%;
+    }
+
+    .inventory-tabs .nav-link {
+        padding: 1rem 1.5rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .inventory-tabs .nav-link:hover {
+        background: white;
+        color: var(--primary-brown);
+        border-left-color: var(--primary-brown);
+    }
+
+    .inventory-tabs .nav-link.active {
+        background: white;
+        color: var(--primary-dark);
+        font-weight: 700;
+        border-left-color: var(--primary-brown);
+    }
+
+    .inventory-tabs .nav-link i {
+        width: 24px;
+        color: var(--primary-brown);
+        margin-right: 0.5rem;
+    }
+
+    .tab-content-pane {
+        padding: 1.5rem;
+    }
+
+    /* ========== SIDEBAR CARDS ========== */
+    .sidebar-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+    }
+
+    .sidebar-card h5 {
+        color: var(--text-dark);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--cream-light);
+    }
+
+    .help-text {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 992px) {
+        .inventory-tabs {
+            border-right: none;
+            border-bottom: 2px solid var(--cream-border);
+        }
+        
+        .inventory-tabs .nav-link {
+            border-left: none;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .inventory-tabs .nav-link.active {
+            border-left: none;
+            border-bottom-color: var(--primary-brown);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÃŠTE AVEC BOUTONS D'ACTION -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 page-header">
+        <div>
+            <h2 class="fw-bold mb-2">Ajouter un produit</h2>
+            <p class="text-muted mb-0">Créez un nouveau produit dans votre catalogue</p>
+        </div>
+        <div class="btn-header">
+            <a href="{% url 'product_list' %}" class="btn-discard">
+                <i class="fas fa-regular fa-xmark"></i> Annuler
+            </a>
+            <button type="submit" form="productForm" class="btn-publish">
+                <i class="fas fa-regular fa-cloud-arrow-up"></i> Publier
+            </button>
+        </div>
+    </div>
+
+    <!-- MESSAGES D'ERREUR -->
+    {% if error %}
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <i class="fas fa-regular fa-circle-exclamation me-2"></i>
+        {{ error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <!-- FORMULAIRE PRINCIPAL -->
+    <form id="productForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-4">
+            <!-- COLONNE GAUCHE (8 colonnes) -->
+            <div class="col-lg-8">
+                <!-- NOM DU PRODUIT -->
+                <div class="form-card">
+                    <h5>
+                        <i class="fas fa-regular fa-heading"></i>
+                        Informations générales
+                    </h5>
+                    <label class="form-label">Nom du produit <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control form-control-lg" 
+                           placeholder="Ex: Chemise blanc Maje, Nike Air Max..." required>
+                    <div class="help-text">Le nom doit Ãªtre clair et descriptif</div>
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="form-card">
+                    <h5>
+                        <i class="fas fa-regular fa-file-lines"></i>
+                        Description
+                    </h5>
+                    <label class="form-label">Description détaillée <span class="text-danger">*</span></label>
+                    <textarea name="description" class="form-control" 
+                              placeholder="Décrivez votre produit en détail : caractéristiques, avantages, matériaux..." required></textarea>
+                </div>
+
+                <!-- IMAGES -->
+                <div class="form-card">
+                    <h5>
+                        <i class="fas fa-regular fa-images"></i>
+                        Images du produit
+                    </h5>
+                    
+                    <div id="dropzone" class="dropzone">
+                        <p>
+                            <i class="fas fa-regular fa-cloud-arrow-up fa-2x mb-3" style="color: var(--primary-brown);"></i><br>
+                            Déposez vos images ici ou <a href="#" id="browseFiles">parcourez votre appareil</a>
+                        </p>
+                        <small class="text-muted">Formats acceptés : JPG, PNG, GIF (max 5 Mo)</small>
+                        <input type="file" id="fileInput" name="images" multiple hidden accept="image/*">
+                    </div>
+
+                    <!-- PRÃ‰VISUALISATION -->
+                    <div id="imagePreview" class="d-flex flex-wrap mt-3"></div>
+                </div>
+
+                <!-- PRIX ET STOCK (ONGLETS) -->
+                <div class="inventory-container">
+                    <div class="row g-0">
+                        <!-- TABS -->
+                        <div class="col-md-3">
+                            <div class="inventory-tabs nav flex-column nav-pills" role="tablist">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pricing" type="button">
+                                    <i class="fas fa-regular fa-tag"></i> Prix
+                                </button>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#stock" type="button">
+                                    <i class="fas fa-regular fa-box"></i> Stock
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- CONTENU DES TABS -->
+                        <div class="col-md-9">
+                            <div class="tab-content">
+                                <!-- TAB PRIX -->
+                                <div class="tab-pane fade show active" id="pricing">
+                                    <div class="tab-content-pane">
+                                        <h6 class="fw-bold mb-3" style="color: var(--text-dark);">Tarification</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Prix de vente ($) <span class="text-danger">*</span></label>
+                                                <input type="number" name="price" class="form-control" 
+                                                       placeholder="0.00" step="0.01" min="0" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Prix barré (optionnel)</label>
+                                                <input type="number" name="old_price" class="form-control" 
+                                                       placeholder="0.00" step="0.01" min="0">
+                                                <small class="text-muted">Afficher une réduction</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- TAB STOCK -->
+                                <div class="tab-pane fade" id="stock">
+                                    <div class="tab-content-pane">
+                                        <h6 class="fw-bold mb-3" style="color: var(--text-dark);">Gestion du stock</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Quantité en stock <span class="text-danger">*</span></label>
+                                                <input type="number" name="stock" class="form-control" 
+                                                       placeholder="0" min="0" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Seuil d'alerte bas</label>
+                                                <input type="number" name="low_stock_threshold" class="form-control" 
+                                                       placeholder="5" min="0" value="5">
+                                                <small class="text-muted">Recevoir une alerte en dessous de ce seuil</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLONNE DROITE (4 colonnes) -->
+            <div class="col-lg-4">
+                <!-- ORGANISATION -->
+                <div class="sidebar-card">
+                    <h5>
+                        <i class="fas fa-regular fa-sitemap"></i>
+                        Organisation
+                    </h5>
+
+                    <div class="mb-4">
+                        <label class="form-label">Catégorie <span class="text-danger">*</span></label>
+                        <select name="category" id="categorySelect" class="form-select" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Marque</label>
+                        <select name="brand" id="brandSelect" class="form-select" disabled>
+                            <option value="">Sélectionnez une marque (optionnel)</option>
+                            {% for brand in brands %}
+                                <option value="{{ brand.id }}" data-category="{{ brand.category_id }}">{{ brand.name }}</option>
+                            {% endfor %}
+                            
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Tags</label>
+                        <input type="text" name="tags" class="form-control" 
+                               placeholder="Ex: nouveau, promo, tendance">
+                        <small class="text-muted">Séparés par des virgules</small>
+                    </div>
+                </div>
+
+                <!-- OPTIONS SUPPLÃ‰MENTAIRES -->
+                <div class="sidebar-card">
+                    <h5>
+                        <i class="fas fa-regular fa-gear"></i>
+                        Options
+                    </h5>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" name="is_featured" id="isFeatured">
+                        <label class="form-check-label" for="isFeatured">
+                            <i class="fas fa-regular fa-star me-1" style="color: var(--primary-brown);"></i>
+                            Mettre en avant
+                        </label>
+                        <small class="text-muted d-block">ApparaÃ®tra dans la section "Produits Ã  la une"</small>
+                    </div>
+
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="is_published" id="isPublished" checked>
+                        <label class="form-check-label" for="isPublished">
+                            <i class="fas fa-regular fa-eye me-1" style="color: var(--primary-brown);"></i>
+                            Publier immédiatement
+                        </label>
+                    </div>
+                </div>
+
+                <!-- INFORMATIONS SUPPLÃ‰MENTAIRES -->
+                <div class="sidebar-card">
+                    <h5>
+                        <i class="fas fa-regular fa-circle-info"></i>
+                        Informations
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-regular fa-circle-check me-2" style="color: var(--primary-brown);"></i>
+                            <strong>SKU :</strong> Généré automatiquement
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-regular fa-circle-check me-2" style="color: var(--primary-brown);"></i>
+                            <strong>Date création :</strong> Aujourd'hui
+                        </li>
+                        <li>
+                            <i class="fas fa-regular fa-circle-check me-2" style="color: var(--primary-brown);"></i>
+                            <strong>Auteur :</strong> {{ user.username }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        /* ========== DRAG & DROP UPLOAD ========== */
+        const dropzone = document.getElementById("dropzone");
+        const fileInput = document.getElementById("fileInput");
+        const preview = document.getElementById("imagePreview");
+        const browseBtn = document.getElementById("browseFiles");
+        const categorySelect = document.getElementById("categorySelect");
+        const brandSelect = document.getElementById("brandSelect");
+
+        // Gestionnaire pour le lien "parcourir"
+        if (browseBtn) {
+            browseBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                fileInput.click();
+            });
+        }
+
+        // Clic sur la dropzone
+        if (dropzone) {
+            dropzone.addEventListener("click", () => fileInput.click());
+        }
+
+        // Changement de fichiers
+        if (fileInput) {
+            fileInput.addEventListener("change", () => {
+                preview.innerHTML = ''; // Vider la prévisualisation
+                [...fileInput.files].forEach(showImage);
+            });
+        }
+
+        // Drag & Drop events
+        if (dropzone) {
+            dropzone.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                dropzone.classList.add("drag-active");
+            });
+
+            dropzone.addEventListener("dragleave", () => {
+                dropzone.classList.remove("drag-active");
+            });
+
+            dropzone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                dropzone.classList.remove("drag-active");
+                
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    preview.innerHTML = ''; // Vider la prévisualisation
+                    [...e.dataTransfer.files].forEach(showImage);
+                }
+            });
+        }
+
+        // Fonction d'affichage des images
+        function showImage(file) {
+            if (!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const wrapper = document.createElement("div");
+                wrapper.style.position = "relative";
+                wrapper.style.display = "inline-block";
+                
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.classList.add("preview-img");
+                
+                wrapper.appendChild(img);
+                preview.appendChild(wrapper);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Auto-sauvegarde du brouillon (optionnel)
+        let autoSaveTimer;
+        const form = document.getElementById('productForm');
+        if (form) {
+            form.addEventListener('input', () => {
+                clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(() => {
+                    console.log('Auto-save triggered');
+                    // Ici vous pouvez ajouter une requÃªte AJAX pour sauvegarder automatiquement
+                }, 3000);
+            });
+        }
+
+        // Filtrer les marques selon la categorie selectionnee
+        function filterBrandsByCategory() {
+            if (!categorySelect || !brandSelect) return;
+
+            const selectedCategoryId = categorySelect.value;
+            const options = Array.from(brandSelect.options);
+
+            options.forEach((option, index) => {
+                if (index === 0) {
+                    option.hidden = false;
+                    option.disabled = false;
+                    return;
+                }
+
+                const optionCategoryId = option.getAttribute("data-category");
+                const isMatch = !!selectedCategoryId && optionCategoryId === selectedCategoryId;
+                option.hidden = !isMatch;
+                option.disabled = !isMatch;
+            });
+
+            if (!selectedCategoryId) {
+                brandSelect.value = "";
+                brandSelect.disabled = true;
+                return;
+            }
+
+            const selectedOption = brandSelect.options[brandSelect.selectedIndex];
+            if (selectedOption && selectedOption.hidden) {
+                brandSelect.value = "";
+            }
+
+            brandSelect.disabled = false;
+        }
+
+        if (categorySelect && brandSelect) {
+            categorySelect.addEventListener("change", filterBrandsByCategory);
+            filterBrandsByCategory();
+        }
+    });
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,397 @@
+{% extends 'custumAdmin/base_admin.html' %}
+{% block title %}Paramètres généraux - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+    }
+
+    /* ========== EN-TÊTE ========== */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 2rem;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header h1:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px;
+    }
+
+    .page-header p {
+        color: var(--text-muted);
+        margin-top: 1rem;
+    }
+
+    /* ========== CARTE ========== */
+    .card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* ========== FORMULAIRES ========== */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid var(--cream-border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    /* ========== LOGO ========== */
+    .logo-upload-container {
+        border: 2px dashed var(--cream-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        background: var(--cream-light);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+
+    .logo-upload-container:hover {
+        border-color: var(--primary-brown);
+        background: white;
+    }
+
+    .logo-upload-container i {
+        font-size: 2rem;
+        color: var(--cream-border);
+        margin-bottom: 0.5rem;
+    }
+
+    .logo-preview {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        background: var(--cream-light);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .logo-preview img {
+        width: 80px;
+        height: 80px;
+        border-radius: 10px;
+        object-fit: contain;
+        border: 2px solid var(--cream-border);
+        background: white;
+    }
+
+    .logo-preview-info {
+        flex: 1;
+    }
+
+    .logo-preview-name {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .logo-preview-size {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .btn-remove-logo {
+        color: var(--danger-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-remove-logo:hover {
+        transform: scale(1.2);
+    }
+
+    /* ========== BOUTON ========== */
+    .btn-save {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn-save:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+    }
+
+    /* ========== INFORMATIONS ========== */
+    .info-box {
+        background: var(--cream-light);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 2rem;
+        border: 1px solid var(--cream-border);
+    }
+
+    .info-box h6 {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-box p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .logo-preview {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÊTE -->
+    <div class="page-header">
+        <h1>Paramètres généraux</h1>
+        <p>Gérez les informations globales de votre site</p>
+    </div>
+
+    <!-- CARTE PRINCIPALE -->
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" id="settingsForm">
+                {% csrf_token %}
+
+                <!-- Nom du site -->
+                <div class="form-group">
+                    <label class="form-label">Nom du site</label>
+                    <input type="text" class="form-control" name="site_name" 
+                           value="{{ settings.site_name|default:'phénix' }}" 
+                           placeholder="Ex: phénix, Ma Boutique...">
+                    <small class="text-muted">Le nom qui apparaît dans le titre du site</small>
+                </div>
+
+                <!-- Email de contact -->
+                <div class="form-group">
+                    <label class="form-label">Email de contact</label>
+                    <input type="email" class="form-control" name="contact_email" 
+                           value="{{ settings.contact_email|default:'contact@phenix.com' }}" 
+                           placeholder="contact@votre-site.com">
+                </div>
+
+                <!-- Numéro de téléphone -->
+                <div class="form-group">
+                    <label class="form-label">Numéro de téléphone</label>
+                    <input type="tel" class="form-control" name="phone" 
+                           value="{{ settings.phone|default:'' }}" 
+                           placeholder="+33 1 23 45 67 89">
+                </div>
+
+                <!-- Logo du site -->
+                <div class="form-group">
+                    <label class="form-label">Logo du site</label>
+                    
+                    <div id="logoDrop" class="logo-upload-container">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Déposez votre logo ici ou cliquez pour parcourir</p>
+                        <small class="text-muted">Format: PNG, JPG, SVG (max 2 Mo)</small>
+                        <input type="file" id="logoInput" name="logo" accept="image/*" hidden>
+                    </div>
+
+                    <!-- Logo actuel -->
+                    {% if settings.logo %}
+                    <div class="logo-preview" id="currentLogo">
+                        <img src="{{ settings.logo.url }}" alt="Logo actuel">
+                        <div class="logo-preview-info">
+                            <div class="logo-preview-name">Logo actuel</div>
+                            <div class="logo-preview-size">{{ settings.logo.size|filesizeformat }}</div>
+                            <small class="text-muted">Dernière mise à jour : {{ settings.updated_at|date:"d/m/Y" }}</small>
+                        </div>
+                        <i class="fas fa-times btn-remove-logo" onclick="removeCurrentLogo()"></i>
+                    </div>
+                    {% endif %}
+
+                    <!-- Prévisualisation nouveau logo -->
+                    <div id="logoPreview" class="logo-preview" style="display: none;">
+                        <img id="logoPreviewImg" src="" alt="Nouveau logo">
+                        <div class="logo-preview-info">
+                            <div class="logo-preview-name" id="logoPreviewName"></div>
+                            <div class="logo-preview-size" id="logoPreviewSize"></div>
+                        </div>
+                        <i class="fas fa-times btn-remove-logo" onclick="removeNewLogo()"></i>
+                    </div>
+                </div>
+
+                <!-- Informations supplémentaires -->
+                <div class="info-box">
+                    <h6><i class="fas fa-info-circle me-2" style="color: var(--primary-brown);"></i>Informations système</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Version Django:</strong> {{ django_version }}</p>
+                            <p><strong>Environnement:</strong> {{ environment|default:"Production" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Dernière mise à jour:</strong> {% now "d/m/Y H:i" %}</p>
+                            <p><strong>Base de données:</strong> {{ database_type|default:"SQLite" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Enregistrer les paramètres
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Upload logo
+        const logoDrop = document.getElementById('logoDrop');
+        const logoInput = document.getElementById('logoInput');
+        const logoPreview = document.getElementById('logoPreview');
+        const logoPreviewImg = document.getElementById('logoPreviewImg');
+        const logoPreviewName = document.getElementById('logoPreviewName');
+        const logoPreviewSize = document.getElementById('logoPreviewSize');
+
+        if (logoDrop && logoInput) {
+            logoDrop.addEventListener('click', () => logoInput.click());
+
+            logoDrop.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                logoDrop.style.borderColor = 'var(--primary-brown)';
+                logoDrop.style.background = 'white';
+            });
+
+            logoDrop.addEventListener('dragleave', () => {
+                logoDrop.style.borderColor = '';
+                logoDrop.style.background = '';
+            });
+
+            logoDrop.addEventListener('drop', (e) => {
+                e.preventDefault();
+                logoDrop.style.borderColor = '';
+                logoDrop.style.background = '';
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    logoInput.files = e.dataTransfer.files;
+                    showLogoPreview(e.dataTransfer.files[0]);
+                }
+            });
+
+            logoInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    showLogoPreview(this.files[0]);
+                }
+            });
+        }
+
+        function showLogoPreview(file) {
+            if (!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                logoPreviewImg.src = e.target.result;
+                logoPreviewName.textContent = file.name;
+                logoPreviewSize.textContent = formatFileSize(file.size);
+                logoPreview.style.display = 'flex';
+                
+                // Cacher le logo actuel si présent
+                const currentLogo = document.getElementById('currentLogo');
+                if (currentLogo) currentLogo.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        window.removeCurrentLogo = function() {
+            const currentLogo = document.getElementById('currentLogo');
+            if (currentLogo) {
+                currentLogo.remove();
+                // Ajouter un champ caché pour marquer la suppression
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'remove_logo';
+                input.value = 'true';
+                document.getElementById('settingsForm').appendChild(input);
+            }
+        };
+
+        window.removeNewLogo = function() {
+            logoPreview.style.display = 'none';
+            logoInput.value = '';
+            const currentLogo = document.getElementById('currentLogo');
+            if (currentLogo) currentLogo.style.display = 'flex';
+        };
+    });
+</script>
+{% endblock %}

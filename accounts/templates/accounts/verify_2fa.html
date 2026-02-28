@@ -1,0 +1,689 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Vérification de sécurité - HStore{% endblock %}
+
+{% block style %}
+<style>
+  /* Variables de couleurs cohérentes */
+  :root {
+    --cream-primary: #F7F3E9;
+    --cream-dark: #E8E2D1;
+    --cream-darker: #D4C9A8;
+    --accent-brown: #A67C52;
+    --accent-brown-dark: #8B5A3C;
+    --text-dark: #5D4037;
+    --text-light: #8D6E63;
+    --cream-light: #FDFBF5;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --warning-color: #ffc107;
+  }
+
+  /* Page de vérification */
+  .verification-page {
+    background-color: var(--cream-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  .verification-header {
+    background: linear-gradient(135deg, var(--accent-brown) 0%, var(--accent-brown-dark) 100%);
+    padding: 1.5rem 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+
+  .verification-header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .verification-header-title {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .verification-header-title:hover {
+    opacity: 0.9;
+  }
+
+  /* Contenu principal */
+  .verification-content {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  /* Carte de vérification */
+  .verification-card {
+    background: white;
+    border: 1px solid var(--cream-darker);
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .verification-card:hover {
+    box-shadow: 0 12px 35px rgba(166, 124, 82, 0.15);
+  }
+
+  /* Titres */
+  .verification-title {
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+
+  .verification-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--accent-brown);
+    border-radius: 2px;
+  }
+
+  /* Description */
+  .verification-description {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+
+  .verification-email {
+    color: var(--accent-brown);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .verification-info {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+
+  /* Messages d'erreur */
+  .verification-error {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .verification-error-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .verification-error-icon {
+    color: var(--error-color);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .verification-error-text {
+    color: var(--error-color);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  /* Formulaire */
+  .verification-form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .verification-label {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .verification-input {
+    border: 2px solid var(--cream-darker);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 1.2rem;
+    letter-spacing: 0.3em;
+    text-align: center;
+    width: 100%;
+    transition: all 0.3s ease;
+    background: var(--cream-light);
+    font-weight: 600;
+  }
+
+  .verification-input:focus {
+    border-color: var(--accent-brown);
+    box-shadow: 0 0 0 0.2rem rgba(166, 124, 82, 0.25);
+    outline: none;
+  }
+
+  .verification-input::placeholder {
+    letter-spacing: normal;
+    color: var(--text-light);
+    opacity: 0.7;
+  }
+
+  .verification-hint {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+
+  /* Boutons */
+  .btn-brown {
+    background: var(--accent-brown);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  .btn-brown:hover:not(:disabled) {
+    background: var(--accent-brown-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(166, 124, 82, 0.3);
+  }
+
+  .btn-brown:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Bouton de renvoi */
+  .btn-resend {
+    background: transparent;
+    color: var(--accent-brown);
+    border: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+  }
+
+  .btn-resend:hover:not(:disabled) {
+    color: var(--accent-brown-dark);
+    text-decoration: underline;
+  }
+
+  .btn-resend:disabled {
+    color: var(--text-light);
+    cursor: not-allowed;
+  }
+
+  /* Section renvoi */
+  .resend-section {
+    border-top: 1px solid var(--cream-darker);
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .resend-content {
+    text-align: center;
+  }
+
+  .resend-text {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .attempts-info {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Informations de sécurité */
+  .security-info {
+    background: var(--cream-light);
+    border: 1px solid var(--cream-darker);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .security-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .security-icon {
+    color: var(--accent-brown);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .security-text {
+    color: var(--text-dark);
+    font-size: 0.85rem;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  .verification-footer {
+    padding: 1.5rem 0;
+    background: var(--cream-dark);
+    margin-top: 2rem;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    text-align: center;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-link {
+    color: var(--text-dark);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .footer-link:hover {
+    color: var(--accent-brown);
+    text-decoration: underline;
+  }
+
+  .footer-copyright {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  /* Animation de vérification */
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .verifying {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Compte à rebours */
+  .countdown-text {
+    color: var(--accent-brown);
+    font-weight: 600;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .verification-card {
+      padding: 1.5rem;
+    }
+    
+    .verification-title {
+      font-size: 1.3rem;
+    }
+    
+    .verification-input {
+      font-size: 1.1rem;
+      padding: 0.875rem;
+    }
+    
+    .footer-links {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verification-page">
+  <!-- Header -->
+  <header class="verification-header">
+    <div class="verification-header-content">
+      <a href="#" class="verification-header-title">
+        HStore - Sécurité
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="verification-content">
+    <div class="verification-card">
+      <!-- Titre -->
+      <h1 class="verification-title">
+        Vérification de sécurité
+      </h1>
+      
+      <!-- Description -->
+      <div class="verification-description">
+        <p class="mb-2">
+          Un code de vérification a été envoyé à :
+        </p>
+        <p class="verification-email">
+          {{ user_email_masked|default:"votre adresse email" }}
+        </p>
+        <p class="verification-info mt-2">
+          Ce code de sécurité expire dans 10 minutes
+        </p>
+      </div>
+
+      <!-- Messages d'erreur -->
+      {% if messages %}
+      <div class="verification-error">
+        {% for message in messages %}
+        <div class="verification-error-content">
+          <i class="fas fa-exclamation-circle verification-error-icon"></i>
+          <p class="verification-error-text">{{ message }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Formulaire -->
+      <form method="POST" action="{% url 'verify_2fa' %}" id="verifyForm">
+        {% csrf_token %}
+        
+        <!-- Champ code -->
+        <div class="verification-form-group">
+          <label for="code" class="verification-label">
+            Code de vérification à 6 chiffres
+          </label>
+          <input 
+            id="code" 
+            name="code" 
+            type="text" 
+            inputmode="numeric" 
+            pattern="\d*" 
+            maxlength="6" 
+            required
+            class="verification-input"
+            placeholder="000000"
+            autocomplete="one-time-code"
+            autofocus
+          >
+          <p class="verification-hint">
+            Saisissez les 6 chiffres reçus par email
+          </p>
+        </div>
+
+        <!-- Bouton de vérification -->
+        <button 
+          type="submit" 
+          id="verifyBtn"
+          class="btn-brown"
+        >
+          <span id="verifyText">Vérifier le code</span>
+          <span id="verifyingText" class="hidden">
+            <i class="fas fa-spinner fa-spin me-2"></i>
+            Vérification...
+          </span>
+        </button>
+      </form>
+
+      <!-- Section renvoi -->
+      <div class="resend-section">
+        <div class="resend-content">
+          <p class="resend-text">
+            Vous n'avez pas reçu le code ?
+          </p>
+          <div class="d-flex flex-column align-items-center">
+            <button 
+              type="button" 
+              id="resendBtn"
+              class="btn-resend"
+              disabled
+            >
+              <span id="resendText">Renvoyer le code</span>
+              <span id="countdown" class="hidden"></span>
+            </button>
+            <p id="attemptsInfo" class="attempts-info">
+              Tentatives : <span class="fw-semibold">{{ attempts_used|default:0 }}</span>/<span class="fw-semibold">{{ max_attempts|default:3 }}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations de sécurité -->
+      <div class="security-info">
+        <div class="security-content">
+          <i class="fas fa-shield-alt security-icon"></i>
+          <p class="security-text">
+            Pour protéger votre compte, ce code de sécurité est requis. 
+            Ne le partagez avec personne.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="verification-footer">
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#" class="footer-link">Conditions d'utilisation</a>
+        <a href="#" class="footer-link">Confidentialité</a>
+        <a href="#" class="footer-link">Aide</a>
+      </div>
+      <p class="footer-copyright">
+        © 2024 HStore. Tous droits réservés.
+      </p>
+    </div>
+  </footer>
+</div>
+
+<!-- Font Awesome pour les icônes -->
+<script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+
+<script>
+(function() {
+  // Configuration
+  const config = {
+    cooldown: 60, // 60 secondes avant de pouvoir renvoyer
+    maxAttempts: {{ max_attempts|default:3 }},
+    currentAttempts: {{ attempts_used|default:0 }}
+  };
+
+  // Éléments
+  const codeInput = document.getElementById('code');
+  const resendBtn = document.getElementById('resendBtn');
+  const resendText = document.getElementById('resendText');
+  const countdown = document.getElementById('countdown');
+  const verifyBtn = document.getElementById('verifyBtn');
+  const verifyText = document.getElementById('verifyText');
+  const verifyingText = document.getElementById('verifyingText');
+  const form = document.getElementById('verifyForm');
+  const attemptsInfo = document.getElementById('attemptsInfo');
+
+  // Initialisation
+  function init() {
+    // Auto-focus sur le champ code
+    codeInput.focus();
+    
+    // Vérifier si l'utilisateur a dépassé les tentatives
+    if (config.currentAttempts >= config.maxAttempts) {
+      disableForm();
+      showMaxAttemptsMessage();
+    }
+    
+    // Démarrer le compte à rebours initial si nécessaire
+    {% if resend_cooldown and resend_cooldown > 0 %}
+    startCooldown({{ resend_cooldown }});
+    {% else %}
+    resendBtn.disabled = false;
+    {% endif %}
+  }
+
+  // Formatage du code
+  codeInput.addEventListener('input', function(e) {
+    // N'autoriser que les chiffres
+    this.value = this.value.replace(/[^0-9]/g, '');
+    
+    // Auto-soumission si 6 chiffres saisis
+    if (this.value.length === 6) {
+      verifyCode();
+    }
+  });
+
+  // Fonction de compte à rebours
+  function startCooldown(seconds) {
+    let remaining = seconds;
+    
+    resendBtn.disabled = true;
+    resendText.classList.add('hidden');
+    countdown.classList.remove('hidden');
+    
+    const interval = setInterval(() => {
+      remaining--;
+      countdown.textContent = `Renvoyer (${remaining}s)`;
+      
+      if (remaining <= 0) {
+        clearInterval(interval);
+        resendBtn.disabled = false;
+        resendText.classList.remove('hidden');
+        countdown.classList.add('hidden');
+      }
+    }, 1000);
+  }
+
+  // Renvoi du code
+  resendBtn.addEventListener('click', async function() {
+    if (this.disabled) return;
+    
+    this.disabled = true;
+    const originalText = resendText.textContent;
+    resendText.textContent = 'Envoi en cours...';
+    
+    try {
+      const response = await fetch("{% url 'resend_2fa' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        startCooldown(data.cooldown || config.cooldown);
+        showTemporaryMessage('Nouveau code envoyé !', 'text-success');
+      } else {
+        showTemporaryMessage(data.error || 'Erreur lors de l\'envoi', 'text-danger');
+        if (data.cooldown) startCooldown(data.cooldown);
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      showTemporaryMessage('Erreur réseau', 'text-danger');
+    } finally {
+      resendText.textContent = originalText;
+    }
+  });
+
+  // Vérification du code
+  function verifyCode() {
+    if (codeInput.value.length !== 6) return;
+    
+    verifyBtn.disabled = true;
+    verifyBtn.classList.add('verifying');
+    verifyText.classList.add('hidden');
+    verifyingText.classList.remove('hidden');
+    
+    form.submit();
+  }
+
+  // Gestion de la soumission du formulaire
+  form.addEventListener('submit', function(e) {
+    if (codeInput.value.length !== 6) {
+      e.preventDefault();
+      codeInput.focus();
+      codeInput.style.borderColor = 'var(--error-color)';
+      return;
+    }
+    verifyCode();
+  });
+
+  // Message temporaire
+  function showTemporaryMessage(message, colorClass) {
+    const tempMessage = document.createElement('div');
+    tempMessage.className = `alert ${colorClass} mt-2 p-2 rounded`;
+    tempMessage.textContent = message;
+    tempMessage.style.fontSize = '0.85rem';
+    
+    resendBtn.parentNode.appendChild(tempMessage);
+    
+    setTimeout(() => {
+      tempMessage.remove();
+    }, 3000);
+  }
+
+  // Désactiver le formulaire si trop de tentatives
+  function disableForm() {
+    codeInput.disabled = true;
+    verifyBtn.disabled = true;
+    resendBtn.disabled = true;
+    codeInput.style.backgroundColor = 'var(--cream-light)';
+    codeInput.style.color = 'var(--text-light)';
+  }
+
+  function showMaxAttemptsMessage() {
+    attemptsInfo.innerHTML = '<span class="text-danger fw-semibold">Trop de tentatives. Réessayez plus tard.</span>';
+  }
+
+  // Navigation au clavier
+  codeInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && this.value.length === 6) {
+      e.preventDefault();
+      verifyCode();
+    }
+  });
+
+  // Retirer la classe d'erreur quand l'utilisateur tape
+  codeInput.addEventListener('input', function() {
+    this.style.borderColor = '';
+  });
+
+  // Initialiser la page
+  init();
+
+})();
+</script>
+{% endblock %}

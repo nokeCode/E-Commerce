@@ -1,0 +1,269 @@
+{% extends "core/base.html" %}
+
+{% block head %}
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+{% endblock %}
+{% block style %}
+  <style>
+  .offcanvas-backdrop.show {
+    background-color: rgba(0, 0, 0, 0.3) !important; /* diminue l’opacité ici (0.3 = 30%) */
+    transition: background-color 0.3s ease-in-out;
+    }
+  </style>
+{% endblock style %}
+{% block content %}
+<!--Main Navigation-->
+<header>
+  <!-- Jumbotron -->
+  <div class="p-3 text-center bg-white border-bottom">
+    <div class="container">
+      <div class="row">
+        <!-- Left elements -->
+        <div class="col-md-4 d-flex justify-content-center justify-content-md-start mb-3 mb-md-0">
+          <a href="#!" class="ms-md-2">
+            <img src="https://mdbootstrap.com/img/logo/mdb-transaprent-noshadows.png" height="35" alt="Logo"/>
+          </a>
+        </div>
+
+        <!-- Center elements -->
+        <div class="col-md-4">
+          <form class="d-flex input-group w-auto my-auto mb-3 mb-md-0">
+            <input autocomplete="off" type="search" class="form-control rounded" placeholder="Search" />
+            <span class="input-group-text border-0 d-none d-lg-flex"><i class="fas fa-search"></i></span>
+          </form>
+        </div>
+
+        <!-- Right elements -->
+        <div class="col-md-4 d-flex justify-content-center justify-content-md-end align-items-center">
+          <div class="d-flex">
+            <!-- Cart -->
+            <a class="text-reset me-3 position-relative" href="#">
+              <i class="fas fa-shopping-cart fs-5"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">2</span>
+            </a>
+
+            <!-- Notification -->
+            <div class="dropdown me-3">
+              <a class="text-reset dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink"
+                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bell fs-5"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                <li><a class="dropdown-item" href="#">Some news</a></li>
+                <li><a class="dropdown-item" href="#">Another news</a></li>
+                <li><a class="dropdown-item" href="#">Something else here</a></li>
+              </ul>
+            </div>
+
+            <!-- Languages -->
+            <div class="dropdown me-3">
+              <a  class="text-reset dropdown-toggle  hidden-arrow" href="#" id="navbarDropdown" role="button"
+                data-mdb-toggle="dropdown" aria-expanded="false">
+                <i class="flag flag-united-kingdom m-0"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                <li>
+                  <a class="dropdown-item" href="#"><i class="flag flag-united-kingdom"></i>English
+                    <i class="fa fa-check text-success ms-2"></i></a>
+                </li>
+                <li>
+                  <hr class="dropdown-divider" />
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"><i class="flag flag-poland"></i>Polski</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"><i class="flag flag-china"></i>中文</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"><i class="flag flag-japan"></i>日本語</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"><i class="flag flag-germany"></i>Deutsch</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"><i class="flag flag-france"></i>Français</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"><i class="flag flag-spain"></i>Español</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"><i class="flag flag-russia"></i>Русский</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"><i class="flag flag-portugal"></i>Português</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- User -->
+            <div class="dropdown">
+              <a class="text-reset dropdown-toggle d-flex align-items-center hidden-arrow" href="#"
+                id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg" class="rounded-circle" height="22"
+                  alt="User avatar" loading="lazy" />
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                <li><a class="dropdown-item" href="#">My profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><a class="dropdown-item" href="#">Logout</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg bg-white">
+    <div class="container justify-content-center justify-content-md-between">
+      <ul class="navbar-nav flex-row">
+        <li class="nav-item me-2 me-lg-0">
+          <a class="nav-link" role="button" data-bs-toggle="offcanvas" href="#sidenav-1" aria-controls="sidenav-1">
+            <i class="fas fa-bars me-1 "></i>
+            <span>Categories</span>
+          </a>
+        </li>
+        <li class="nav-item me-2 me-lg-0 d-none d-md-inline-block">
+          <a class="nav-link" href="#">Bestsellers</a>
+        </li>
+        <li class="nav-item me-2 me-lg-0 d-none d-md-inline-block">
+          <a class="nav-link" href="#">Inspirations</a>
+        </li>
+        <li class="nav-item me-2 me-lg-0 d-none d-md-inline-block">
+          <a class="nav-link" href="#">Blog</a>
+        </li>
+        <li class="nav-item me-2 me-lg-0 d-none d-md-inline-block">
+          <a class="nav-link" href="#">Contact</a>
+        </li>
+      </ul>
+
+      <button class="btn btn-outline-primary" type="button">
+        Download app<i class="fas fa-download ms-2"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Offcanvas Sidenav -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="sidenav-1" aria-labelledby="sidenavLabel" data-bs-backdrop="true" style="--bs-backdrop-opacity: 0.3">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="sidenavLabel">Menu</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          <a class="sidenav-link" data-bs-toggle="collapse" href="#categoriesCollapse">
+            <i class="fas fa-layer-group pe-3"></i>Categories
+          </a>
+          <div class="collapse show" id="categoriesCollapse">
+            <ul class="list-group list-group-flush mt-2">
+              {% for categ in list_categ %}
+              <li class="list-group-item">
+                <a href="#" class="text-dark">{{ categ.name }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </li>
+        <li class="sidenav-item">
+          <a class="sidenav-link"><i class="fas fa-gem pe-3"></i><span>Brands</span></a>
+          <ul class="sidenav-collapse">
+            <li class="sidenav-item">
+              <a class="sidenav-link">Brand 1</a>
+            </li>
+            <li class="sidenav-item">
+              <a class="sidenav-link">Brand 2</a>
+            </li>
+            <li class="sidenav-item">
+              <a class="sidenav-link">Brand 3</a>
+            </li>
+            <li class="sidenav-item">
+              <a class="sidenav-link">Brand 4</a>
+            </li>
+          </ul>
+        </li>
+        <li class="sidenav-item">
+          <a class="sidenav-link"><i class="fas fa-gift pe-3"></i><span>Discounts</span></a>
+          <ul class="sidenav-collapse">
+            <li class="sidenav-item">
+              <a class="sidenav-link">-70%</a>
+            </li>
+            <li class="sidenav-item">
+              <a class="sidenav-link">-50%</a>
+            </li>
+            <li class="sidenav-item">
+              <a class="sidenav-link">Any</a>
+            </li>
+          </ul>
+        </li>
+        <li class="sidenav-item">
+          <a class="sidenav-link"><i class="fas fa-fire-alt pe-3"></i><span>Popular</span></a>
+          <ul class="sidenav-collapse">
+            <li class="sidenav-item">
+              <a class="sidenav-link">Jewelry</a>
+            </li>
+            <li class="sidenav-item">
+              <a class="sidenav-link">Snickers</a>
+            </li>
+          </ul>
+        </li>
+        <li class="sidenav-item">
+          <a class="sidenav-link"><i class="fab fa-hotjar pe-3"></i><span>Today's bestseller</span></a>
+          <div class="card mx-3">
+            <div class="bg-image hover-zoom ripple" data-mdb-ripple-color="light">
+              <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/shoes%20(3).jpg"
+                class="w-100" />
+              <a href="#!">
+                <div class="mask">
+                  <div class="d-flex justify-content-start align-items-end h-100">
+                    <h5><span class="badge bg-danger ms-2">-10%</span></h5>
+                  </div>
+                </div>
+                <div class="hover-overlay">
+                  <div class="mask" style="background-color: rgba(251, 251, 251, 0.15)"></div>
+                </div>
+              </a>
+            </div>
+            <div class="card-body">
+              <a href="" class="text-reset">
+                <p class="mb-2">Pink snickers</p>
+              </a>
+              <p class="mb-0">
+                <s>$61.99</s><strong class="ms-2 text-danger">$50.99</strong>
+              </p>
+            </div>
+          </div>
+        </li>
+        <!-- Ajoutez les autres sections de menu de la même manière -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="bg-image" style="background-image: url('https://mdbootstrap.com/img/new/slides/310.jpg'); height: 500px;">
+    <div class="mask" style="background-color: rgba(0, 0, 0, 0.6)">
+      <div class="container h-100 d-flex align-items-center justify-content-center text-center text-white">
+        <div>
+          <h1 class="mb-3">Autumn sale</h1>
+          <h4 class="mb-4">Promotions up to 70%!</h4>
+          <a class="btn btn-outline-light btn-lg mb-3" href="#" role="button">
+            See the promotional offer <i class="fas fa-gem ms-1"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block scripts %}
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Font Awesome -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+{% endblock %}

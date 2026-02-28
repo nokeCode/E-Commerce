@@ -1,0 +1,512 @@
+{% extends 'custumAdmin/base_admin.html' %}
+{% block title %}Administrateurs - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+    }
+
+    /* ========== EN-TÊTE ========== */
+    .page-header {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-header h1 {
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 2rem;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0;
+    }
+
+    .page-header h1:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px;
+    }
+
+    .btn-add {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-add:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+        color: white;
+    }
+
+    /* ========== CARTE ========== */
+    .card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+        overflow: hidden;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* ========== TABLEAU ========== */
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--cream-border);
+        padding: 1rem 1.5rem;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--cream-light);
+        color: var(--text-dark);
+    }
+
+    .table tbody tr:hover td {
+        background: var(--cream-light);
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* ========== AVATAR ========== */
+    .admin-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--cream-border);
+    }
+
+    .admin-avatar-initial {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--cream-light);
+        color: var(--primary-brown);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+        border: 2px solid var(--cream-border);
+    }
+
+    .admin-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .admin-name {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .admin-email {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    /* ========== RÔLES ========== */
+    .role-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .role-superadmin {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: white;
+    }
+
+    .role-admin {
+        background: rgba(166, 124, 82, 0.1);
+        color: var(--primary-brown);
+        border: 1px solid var(--primary-brown);
+    }
+
+    .role-manager {
+        background: rgba(23, 162, 184, 0.1);
+        color: #117a8b;
+        border: 1px solid #17a2b8;
+    }
+
+    .role-editor {
+        background: rgba(108, 117, 125, 0.1);
+        color: var(--text-muted);
+        border: 1px solid var(--text-muted);
+    }
+
+    /* ========== BOUTONS D'ACTION ========== */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--cream-border);
+        background: white;
+        color: var(--text-dark);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-action:hover {
+        background: var(--cream-light);
+        border-color: var(--primary-brown);
+        color: var(--primary-brown);
+        transform: translateY(-2px);
+    }
+
+    .btn-action.edit:hover {
+        background: var(--warning-color);
+        border-color: var(--warning-color);
+        color: white;
+    }
+
+    .btn-action.delete:hover {
+        background: var(--danger-color);
+        border-color: var(--danger-color);
+        color: white;
+    }
+
+    /* ========== ÉTAT VIDE ========== */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--cream-border);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    /* ========== STATUT ========== */
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .status-active {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+    }
+
+    .status-inactive {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+        border: 1px solid var(--danger-color);
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .btn-add {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .table thead th {
+            font-size: 0.7rem;
+            padding: 0.75rem;
+        }
+        
+        .table tbody td {
+            padding: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÊTE -->
+    <div class="page-header">
+        <div>
+            <h1>Administrateurs</h1>
+            <p class="text-muted mt-2">Gérez les utilisateurs ayant accès à l'interface d'administration</p>
+        </div>
+        <a href="#ajouter-admin" class="btn-add" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+            <i class="fas fa-plus"></i> Ajouter un administrateur
+        </a>
+    </div>
+
+    <!-- CARTE PRINCIPALE -->
+    <div class="card">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Administrateur</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Date d'ajout</th>
+                        <th>Dernière connexion</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for admin in admins %}
+                    <tr>
+                        <!-- Administrateur -->
+                        <td>
+                            <div class="admin-info">
+                                {% if admin.avatar %}
+                                    <img src="{{ admin.avatar.url }}" class="admin-avatar" alt="{{ admin.first_name }}">
+                                {% else %}
+                                    <div class="admin-avatar-initial">
+                                        {{ admin.first_name|first|upper }}{{ admin.last_name|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="admin-name">{{ admin.first_name }} {{ admin.last_name }}</div>
+                                    <div class="admin-email">@{{ admin.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Email -->
+                        <td>
+                            <a href="mailto:{{ admin.email }}" style="color: var(--primary-brown); text-decoration: none;">
+                                {{ admin.email }}
+                            </a>
+                        </td>
+
+                        <!-- Rôle -->
+                        <td>
+                            {% if admin.role == 'superadmin' %}
+                                <span class="role-badge role-superadmin">
+                                    <i class="fas fa-crown"></i> Super Admin
+                                </span>
+                            {% elif admin.role == 'admin' %}
+                                <span class="role-badge role-admin">
+                                    <i class="fas fa-shield"></i> Admin
+                                </span>
+                            {% elif admin.role == 'manager' %}
+                                <span class="role-badge role-manager">
+                                    <i class="fas fa-briefcase"></i> Gestionnaire
+                                </span>
+                            {% else %}
+                                <span class="role-badge role-editor">
+                                    <i class="fas fa-pen"></i> Éditeur
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Statut -->
+                        <td>
+                            {% if admin.is_active %}
+                                <span class="status-badge status-active">
+                                    <i class="fas fa-circle-check"></i> Actif
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-inactive">
+                                    <i class="fas fa-circle-xmark"></i> Inactif
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Date d'ajout -->
+                        <td>
+                            <span title="{{ admin.date_joined|date:'d/m/Y H:i' }}">
+                                {{ admin.date_joined|date:"d M Y" }}
+                            </span>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">
+                                {{ admin.date_joined|timesince }}
+                            </div>
+                        </td>
+
+                        <!-- Dernière connexion -->
+                        <td>
+                            {% if admin.last_login %}
+                                <span title="{{ admin.last_login|date:'d/m/Y H:i' }}">
+                                    {{ admin.last_login|timesince }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Jamais</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'admin_edit' admin.id %}" class="btn-action edit" title="Modifier">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <button type="button" class="btn-action delete btn-delete" 
+                                        data-url="{% url 'admin_delete' admin.id %}" 
+                                        data-name="{{ admin.first_name }} {{ admin.last_name|escape }}" 
+                                        title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-user-shield"></i>
+                                <h5 style="color: var(--text-dark);">Aucun administrateur</h5>
+                                <p>Commencez par ajouter un premier administrateur.</p>
+                                <a href="#ajouter-admin" class="btn-add" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+                                    <i class="fas fa-plus"></i> Ajouter un administrateur
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pied de tableau avec compteur -->
+        <div class="card-footer" style="background: var(--cream-light); border-top: 2px solid var(--cream-border); padding: 1rem 1.5rem;">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted">
+                    <i class="fas fa-users me-2"></i> Total : {{ admins|length }} administrateur(s)
+                </span>
+                <span class="text-muted">
+                    <i class="fas fa-shield me-2"></i> Dernière mise à jour : {% now "d/m/Y H:i" %}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL D'AJOUT D'ADMINISTRATEUR -->
+<div class="modal fade" id="addAdminModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: 2px solid var(--cream-border); border-radius: 16px;">
+            <div class="modal-header" style="border-bottom: 2px solid var(--cream-light);">
+                <h5 class="modal-title" style="color: var(--text-dark);">
+                    <i class="fas fa-user-plus me-2" style="color: var(--primary-brown);"></i>
+                    Ajouter un administrateur
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="#">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom d'utilisateur</label>
+                        <input type="text" class="form-control" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Prénom</label>
+                            <input type="text" class="form-control" name="first_name">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-control" name="last_name">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mot de passe</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rôle</label>
+                        <select class="form-select" name="role">
+                            <option value="admin">Admin</option>
+                            <option value="manager">Gestionnaire</option>
+                            <option value="editor">Éditeur</option>
+                            <option value="superadmin">Super Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 2px solid var(--cream-light);">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary" style="background: var(--primary-brown); border: none;">
+                        <i class="fas fa-save me-2"></i> Ajouter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

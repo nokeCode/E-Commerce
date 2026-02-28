@@ -1,0 +1,503 @@
+{% load static %}
+{% load i18n %}
+{% block style %}
+<style>
+  /* Variables de couleurs */
+  :root {
+    --cream-primary: #F7F3E9;
+    --cream-dark: #E8E2D1;
+    --cream-darker: #D4C9A8;
+    --accent-brown: #A67C52;
+    --accent-brown-dark: #8B5A3C;
+    --text-dark: #5D4037;
+    --text-light: #8D6E63;
+  }
+
+  /* Rendre le fond derrière l'offcanvas plus clair */
+  .offcanvas-backdrop.show {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Header principal */
+  .header-main {
+    background: linear-gradient(135deg, var(--cream-primary) 0%, var(--cream-dark) 100%);
+    border-bottom: 2px solid var(--cream-darker);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Navigation secondaire */
+  .nav-secondary {
+    background: linear-gradient(135deg, var(--accent-brown) 0%, var(--accent-brown-dark) 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Textes */
+  .text-cream { color: var(--cream-primary); }
+  .text-brown { color: var(--text-dark); }
+  .text-brown-light { color: var(--text-light); }
+
+  /* Boutons */
+  .btn-cream {
+    background: var(--cream-primary);
+    color: var(--text-dark);
+    border: 1px solid var(--cream-darker);
+    font-weight: 500;
+  }
+
+  .btn-cream:hover {
+    background: var(--cream-dark);
+    color: var(--text-dark);
+  }
+
+  .btn-brown {
+    background: var(--accent-brown);
+    color: white;
+    border: none;
+  }
+
+  .btn-brown:hover {
+    background: var(--accent-brown-dark);
+    color: white;
+  }
+
+  /* Barre de recherche */
+  .search-input {
+    border: 2px solid var(--cream-darker);
+    border-right: none;
+    font-size: 0.95rem;
+  }
+
+  .search-input:focus {
+    border-color: var(--accent-brown);
+    box-shadow: 0 0 0 0.2rem rgba(166, 124, 82, 0.25);
+  }
+
+  .search-btn {
+    background: var(--accent-brown);
+    border: 2px solid var(--accent-brown);
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .search-btn:hover {
+    background: var(--accent-brown-dark);
+    border-color: var(--accent-brown-dark);
+  }
+
+  /* Badge panier */
+  .cart-badge {
+    background: var(--accent-brown);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  /* Liens de navigation */
+  .nav-link-custom {
+    color: var(--text-dark) !important;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+    position: relative;
+  }
+
+  .nav-link-custom:hover {
+    color: var(--accent-brown) !important;
+  }
+
+  .nav-link-custom::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-brown);
+    transition: width 0.3s ease;
+  }
+
+  .nav-link-custom:hover::after {
+    width: 100%;
+  }
+
+  /* Offcanvas */
+  .offcanvas-cream {
+    background: var(--cream-primary);
+    border-right: 3px solid var(--cream-darker);
+  }
+
+  .offcanvas-header-cream {
+    background: var(--accent-brown);
+    color: white;
+  }
+
+  /* Liste des catégories */
+  .category-item {
+    border: none !important;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .category-item:hover {
+    background-color: var(--cream-dark);
+  }
+
+  .category-link {
+    color: var(--text-dark);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .category-link:hover {
+    color: var(--accent-brown);
+  }
+
+  /* Logo area */
+  .logo-container {
+    background: white;
+    border-radius: 12px;
+    padding: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  /* Localisation */
+  .location-text {
+    font-size: 0.85rem;
+  }
+
+  .location-main {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  /* Compte utilisateur */
+  .account-link {
+    color: var(--text-dark) !important;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .account-link:hover {
+    color: var(--accent-brown) !important;
+  }
+
+  /* Animation subtile au survol */
+  .header-item {
+    transition: transform 0.2s ease;
+  }
+
+  .header-item:hover {
+    transform: translateY(-1px);
+  }
+/* --- Correction du backdrop (arrière-plan fondu derrière le modal) --- */
+.modal-backdrop.show {
+    background-color: rgba(0, 0, 0, 0.05) !important; /* très léger fondu */
+}
+
+/* --- Style du modal pour s'intégrer au thème crème/brown --- */
+.modal-content {
+    background: var(--cream-primary) !important;
+    border: 2px solid var(--cream-darker) !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* Header du modal */
+.modal-header {
+    background: var(--accent-brown) !important;
+    color: white !important;
+    border-bottom: 1px solid var(--accent-brown-dark);
+}
+
+/* Texte & labels */
+.modal-content label,
+.modal-content h5 {
+    color: var(--text-dark) !important;
+}
+
+/* Champs du formulaire */
+.modal-content input.form-control {
+    border: 2px solid var(--cream-darker);
+    background: white;
+    color: var(--text-dark);
+}
+
+.modal-content input.form-control:focus {
+    border-color: var(--accent-brown);
+    box-shadow: 0 0 0 0.2rem rgba(166, 124, 82, 0.25);
+}
+
+/* Footer */
+.modal-footer {
+    border-top: 1px solid var(--cream-darker);
+}
+
+/* Bouton fermer (croix) */
+.btn-close-white {
+    filter: brightness(0) invert(1);
+}
+
+ 
+</style>
+{% endblock style %}
+
+<!-- ===== HEADER PRINCIPAL AMÉLIORÉ ===== -->
+<header class="header-main py-3 px-3 sticky-top shadow-sm">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+
+      <!-- LOGO -->
+      <div class="col-auto header-item">
+        <a href="{% url 'Home' %}" class="d-flex align-items-center text-decoration-none">
+          <div class="logo-container">
+            <model-viewer 
+              src="{% static 'image/logo/site_logo.glb' %}" 
+              alt="Logo HStore" 
+              style="width: 100px; height: 100px; display: block;" 
+              auto-rotate 
+              camera-controls 
+              background-color="#FFFFFF"
+              shadow-intensity="1">
+            </model-viewer>
+          </div>
+          <span class="ms-2 text-brown fw-bold fs-4">HStore</span>
+        </a>
+      </div>
+
+      <!-- LOCALISATION -->
+      <div class="col-auto d-none d-lg-flex align-items-center ms-4 header-item">
+        <i class="fa-solid fa-location-dot me-2 text-brown" style="font-size: 1.1rem;"></i>
+        <div>
+          <small class="text-brown-light location-text">{% trans "Livrer à" %}</small><br>
+          <span class="location-main fw-semibold text-brown">
+          {{ request.session.city|default:"Votre ville" }},
+          {{ request.session.country|default:"Votre pays" }}
+        </span>
+
+        <!-- Bouton Modifier -->
+        <button class="btn btn-link p-0 ms-2 text-brown-light small"
+                data-bs-toggle="modal" data-bs-target="#LocationModal"
+                style="font-size: 0.8rem;">
+          Modifier
+        </button>
+
+        </div>
+      </div>
+
+      <!-- BARRE DE RECHERCHE -->
+      <div class="col mx-4">
+        <form class="d-flex" method="get" action="{% url 'search' %}">
+          <input type="text" name="q" class="form-control search-input rounded-start rounded-end-0 py-2" 
+                 placeholder="{% trans 'Rechercher des produits, marques...' %}" aria-label="Search" value="{{ request.GET.q }}">
+          <button class="btn search-btn rounded-start-0 rounded-end px-3">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- LANGUE -->
+      <div class="col-auto d-none d-md-flex align-items-center header-item me-3">
+        <form action="{% url 'set_language' %}" method="post" class="d-flex align-items-center">
+          {% csrf_token %}
+
+          <input name="next" type="hidden" value="{{ request.path }}">
+
+          <select name="language"
+                  class="form-select form-select-sm border-0 bg-transparent fw-medium text-brown"
+                  onchange="this.form.submit()">
+
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+
+            {% for lang_code, lang_name in LANGUAGES %}
+              <option value="{{ lang_code }}"
+                      {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                {{ lang_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+
+      <!-- COMPTE -->
+      <div class="col-auto text-center mx-2 header-item">
+        {% if user.is_authenticated %}
+          <a href="{% url 'account' %}" class="account-link">
+            <div class="d-flex align-items-center">
+              <i class="fa-solid fa-user-circle me-2 text-brown" style="font-size: 1.2rem;"></i>
+              <div class="text-start">
+                <small class="d-block text-brown-light">{% trans "Bonjour" %}</small>
+                <span class="fw-semibold text-brown">{{ user.get_full_name|default:user.username|truncatechars:15 }}</span>
+              </div>
+            </div>
+          </a>
+        {% else %}
+          <a href="{% url 'account' %}" class="account-link">
+            <div class="d-flex align-items-center">
+              <i class="fa-solid fa-user-circle me-2 text-brown" style="font-size: 1.2rem;"></i>
+              <div class="text-start">
+                <small class="d-block text-brown-light">{% trans "Identifiez-vous" %}</small>
+                <span class="fw-semibold text-brown">{% trans "Mon compte" %}</span>
+              </div>
+            </div>
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- PANIER -->
+      <div class="col-auto text-center position-relative header-item">
+        <a href="{% url 'cart_detail' %}" class="account-link">
+          <div class="position-relative">
+            <i class="fa-solid fa-shopping-bag fs-4 text-brown"></i>
+            {% if cart|length > 0 %}
+              <span class="position-absolute top-0 start-100 translate-middle badge cart-badge rounded-pill">
+                {{ cart|length }}
+              </span>
+            {% endif %}
+          </div>
+          <small class="fw-semibold text-brown d-block mt-1">{% trans "Panier" %}</small>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MENU DE NAVIGATION SECONDAIRE ===== -->
+<nav class="nav-secondary py-2 shadow-sm">
+  <div class="container-fluid d-flex align-items-center">
+
+    <!-- Bouton Hamburger pour catégories -->
+    <button class="btn btn-brown text-white me-4 d-flex align-items-center" 
+            type="button" 
+            data-bs-toggle="offcanvas" 
+            data-bs-target="#offcanvasCategories" 
+            aria-controls="offcanvasCategories">
+      <i class="fa-solid fa-bars me-2"></i>
+      <span class="fw-medium">{% trans "Toutes les catégories" %}</span>
+    </button>
+
+    <!-- Liens de navigation -->
+    <ul class="nav small flex-grow-1">
+      <li class="nav-item mx-2">
+        <a href="#" class="nav-link nav-link-custom px-3 py-1">
+          <i class="fa-solid fa-bolt me-1"></i>{% trans "Promotions" %}
+        </a>
+      </li>
+      <li class="nav-item mx-2">
+        <a href="#" class="nav-link nav-link-custom px-3 py-1">
+          <i class="fa-solid fa-star me-1"></i>{% trans "Nouveautés" %}
+        </a>
+      </li>
+      <li class="nav-item mx-2">
+        <a href="#" class="nav-link nav-link-custom px-3 py-1">
+          <i class="fa-solid fa-fire me-1"></i>{% trans "Meilleures ventes" %}
+        </a>
+      </li>
+      <li class="nav-item mx-2">
+        <a href="#" class="nav-link nav-link-custom px-3 py-1">
+          <i class="fa-solid fa-gift me-1"></i>{% trans "Offres spéciales" %}
+        </a>
+      </li>
+      <li class="nav-item mx-2">
+        <a href="#" class="nav-link nav-link-custom px-3 py-1">
+          <i class="fa-solid fa-headset me-1"></i>{% trans "Contact" %}
+        </a>
+      </li>
+    </ul>
+
+    <!-- Support client -->
+    <div class="d-none d-xl-flex align-items-center">
+      <i class="fa-solid fa-phone me-2 text-cream"></i>
+      <span class="text-cream small">{% trans "Support: +228 XX XX XX XX" %}</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== OFFCANVAS DES CATÉGORIES AMÉLIORÉ ===== -->
+<div class="offcanvas offcanvas-start offcanvas-cream" tabindex="-1" id="offcanvasCategories" aria-labelledby="offcanvasCategoriesLabel">
+  <div class="offcanvas-header offcanvas-header-cream">
+    <h5 class="offcanvas-title fw-bold mb-0" id="offcanvasCategoriesLabel">
+      <i class="fa-solid fa-grid-2 me-2"></i>{% trans "Toutes les catégories" %}
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <div class="list-group list-group-flush">
+      {% for categ in list_categ %}
+        <div class="category-item">
+          <a href="{% url 'category' categ.slug %}" class="category-link d-flex align-items-center justify-content-between">
+            <div>
+              <i class="{{ categ.icone }}"></i>
+              {{ categ.name }}
+            </div>
+            <i class="fa-solid fa-chevron-right text-brown-light small"></i>
+          </a>
+        </div>
+      {% empty %}
+        <div class="category-item text-center text-brown-light">
+          <i class="fa-solid fa-inbox fa-2x mb-2"></i>
+          <p class="mb-0">{% trans "Aucune catégorie disponible" %}</p>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Section aide rapide -->
+    <div class="border-top mt-3 pt-3 px-3">
+      <h6 class="text-brown fw-semibold mb-2">{% trans "Besoin d'aide ?" %}</h6>
+      <a href="#" class="btn btn-outline-brown btn-sm w-100 mb-2">
+        <i class="fa-solid fa-question-circle me-1"></i>{% trans "Centre d'aide" %}
+      </a>
+    </div>
+  </div>
+</div>
+<!-- MODAL MODIFICATION LOCALISATION -->
+<div class="modal fade" id="LocationModal" tabindex="-1" aria-labelledby="LocationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background: var(--cream-primary); border: 2px solid var(--cream-darker);">
+      
+      <div class="modal-header" style="background: var(--accent-brown); color: white;">
+        <h5 class="modal-title" id="LocationModalLabel">Modifier votre localisation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form method="post" action="{% url 'update_location' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label class="form-label text-brown">Votre pays</label>
+            <input type="text" class="form-control" name="country"
+                   value="{{ request.session.country|default:'' }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-brown">Votre ville</label>
+            <input type="text" class="form-control" name="city"
+                   value="{{ request.session.city|default:'' }}">
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-brown">Enregistrer</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+<script>
+// Animation subtle au chargement
+document.addEventListener('DOMContentLoaded', function() {
+  // Ajout d'une classe loaded pour les animations
+  setTimeout(() => {
+    document.querySelector('header').classList.add('loaded');
+  }, 100);
+});
+</script>
+
+

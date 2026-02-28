@@ -1,0 +1,36 @@
+{% load i18n %}
+{% if datas.has_other_pages %}
+            <nav arial-label="Page navigation example">
+                <ul class="pagination">
+                    {% if datas.has_previous %}
+                        <li class="page_item">
+                            <a class="page-link" href="?page={{ datas.previous_page_number }}">{% trans "previous" %}</a>
+                        </li>
+                    {% else %}
+                        <li class="page_item disabled">
+                            <span class="page-link">{% trans "previous" %}</span>
+                        </li>
+                    {% endif %}
+
+                    {% for page in datas.paginator.page_range %}
+                        {% if page >= datas.number|add:'-2' and page <= datas.number|add:'2' %}
+                            <li class="page-item">
+                                <a class="page-link {% if datas.number == page %} active {% endif %}" href="?page={{ page }}">{{ page }}</a>
+                            </li>
+                        {% endif %}
+                        
+                    {% endfor %}
+
+                    {% if datas.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ datas.next_page_number }}">{% trans "next" %}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">{% trans "next" %}</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% blocktrans with current=datas.number total=datas.paginator.num_pages %}{{ current }} of {{ total }} pages{% endblocktrans %}
+{% endif %}

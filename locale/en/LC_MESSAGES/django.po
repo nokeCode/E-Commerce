@@ -1,0 +1,249 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-28 16:56+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: .\HStore\settings.py:231
+msgid "Français"
+msgstr "French"
+
+#: .\HStore\settings.py:232
+msgid "English"
+msgstr "English"
+
+#: .\accounts\templates\accounts\account.html:424
+#, python-format
+msgid "Membre depuis %(dt)s"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:451
+msgid "Profil"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:454
+msgid "Sécurité"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:457
+msgid "Adresses"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:460
+msgid "Commandes"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:463
+msgid "Favoris"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:466
+msgid "Notifications"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:469
+msgid "Paiement"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:472
+msgid "Préférences"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:479
+msgid "Actions rapides"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:482
+msgid "Déconnexion"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:485
+msgid "Exporter mes données"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:499
+msgid "Informations personnelles"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:502
+msgid "Modifier"
+msgstr ""
+
+#: .\accounts\templates\accounts\account.html:816
+#: .\products\templates\products\show_categ.html:798
+msgid "Voir le produit"
+msgstr ""
+
+#: .\accounts\templates\accounts\signin.html:333
+msgid "Veuillez entrer votre nom d'utilisateur ou email."
+msgstr ""
+
+#: .\accounts\templates\accounts\signin.html:340
+msgid "Mot de passe"
+msgstr ""
+
+#: .\accounts\templates\accounts\signin.html:342
+msgid "Mot de passe oublié ?"
+msgstr ""
+
+#: .\accounts\templates\accounts\signin.html:357
+msgid "Veuillez entrer votre mot de passe."
+msgstr ""
+
+#: .\accounts\templates\accounts\signin.html:364
+msgid "Se connecter"
+msgstr ""
+
+#: .\accounts\templates\accounts\signin.html:375
+msgid "Notice Protection de vos Informations Personnelles"
+msgstr ""
+
+#: .\core\templates\core\component\paginator.html:7
+#: .\core\templates\core\component\paginator.html:11
+msgid "previous"
+msgstr ""
+
+#: .\core\templates\core\component\paginator.html:26
+#: .\core\templates\core\component\paginator.html:30
+msgid "next"
+msgstr ""
+
+#: .\core\templates\core\component\paginator.html:35
+#, python-format
+msgid "%(current)s of %(total)s pages"
+msgstr ""
+
+#: .\core\templates\core\header.html:223
+msgid "Livrer à"
+msgstr ""
+
+#: .\core\templates\core\header.html:236
+msgid "Rechercher des produits, marques..."
+msgstr ""
+
+#: .\core\templates\core\header.html:223
+msgid "Livrer à"
+msgstr "Deliver to"
+
+#: .\core\templates\core\header.html:236
+msgid "Rechercher des produits, marques..."
+msgstr "Search for products, brands..."
+
+#: .\core\templates\core\header.html:274
+msgid "Bonjour"
+msgstr "Good morning"
+
+#: .\core\templates\core\header.html:284
+msgid "Identifiez-vous"
+msgstr "Identify yourself"
+
+#: .\core\templates\core\header.html:285
+msgid "Mon compte"
+msgstr "My account"
+
+#: .\core\templates\core\header.html:301
+msgid "Panier"
+msgstr "Basket"
+
+#: .\core\templates\core\header.html:319 .\core\templates\core\header.html:363
+msgid "Toutes les catégories"
+msgstr "All categories"
+
+#: .\core\templates\core\header.html:326
+msgid "Promotions"
+msgstr "Promotions"
+
+#: .\core\templates\core\header.html:331 .\core\templates\core\home.html:548
+msgid "Nouveautés"
+msgstr "What's new"
+
+#: .\core\templates\core\header.html:336
+msgid "Meilleures ventes"
+msgstr "Best Sellers"
+
+#: .\core\templates\core\header.html:341
+msgid "Offres spéciales"
+msgstr "Special offers"
+
+#: .\core\templates\core\header.html:346
+msgid "Contact"
+msgstr "Contact"
+
+#: .\core\templates\core\header.html:354
+msgid "Support: +228 XX XX XX XX"
+msgstr "Support: +228 XX XX XX XX"
+
+#: .\core\templates\core\header.html:382
+msgid "Aucune catégorie disponible"
+msgstr "No categories available"
+
+#: .\core\templates\core\header.html:389
+msgid "Besoin d'aide ?"
+msgstr "Need help?"
+
+#: .\core\templates\core\header.html:391
+msgid "Centre d'aide"
+msgstr "Help Center"
+
+#: .\core\templates\core\home.html:434
+msgid "Premier intégrateur et leader de solutions monétiques au Togo"
+msgstr "First integrator and leader of electronic payment solutions in Togo"
+
+#: .\core\templates\core\home.html:435
+msgid ""
+"Nous vous offrons la façon la plus rapide de recevoir des paiements en ligne"
+msgstr "We offer you the fastest way to receive payments online"
+
+#: .\core\templates\core\home.html:439
+msgid "Ouvrir un compte"
+msgstr "Open an account"
+
+#: .\core\templates\core\home.html:537
+msgid "Soldes d'Été !"
+msgstr "Summer Sales!"
+
+#: .\core\templates\core\home.html:538
+#, python-format
+msgid "Jusqu'à -50%% sur une sélection de produits. Offre limitée !"
+msgstr "Up to -50%% on a selection of products.Limited offer!"
+
+#: .\core\templates\core\home.html:540
+msgid "Voir les offres"
+msgstr "See the offers"
+
+#: .\core\templates\core\search.html:513
+msgid "Pas encore d'avis"
+msgstr ""
+
+#: .\core\templates\core\search.html:525
+msgid "Livraison GRATUITE"
+msgstr ""
+
+#: .\core\templates\core\search.html:543
+msgid "Aucun résultat trouvé"
+msgstr ""
+
+#: .\products\templates\products\single-product.html:703
+msgid "avis"
+msgstr ""
+
+#: .\products\templates\products\single-product.html:847
+msgid "Avis"
+msgstr ""
+
+#: .\products\templates\products\single-product.html:862
+msgid "Avis clients"
+msgstr ""

@@ -1,0 +1,537 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block title %}Hsotre | Connexion{% endblock %}
+{% block style %}
+<style>
+  /* Variables de couleurs cohérentes */
+  :root {
+    --cream-primary: #F7F3E9;
+    --cream-dark: #E8E2D1;
+    --cream-darker: #D4C9A8;
+    --accent-brown: #A67C52;
+    --accent-brown-dark: #8B5A3C;
+    --text-dark: #5D4037;
+    --text-light: #8D6E63;
+    --cream-light: #FDFBF5;
+  }
+
+  /* Page d'inscription */
+  .signup-page {
+    background-color: var(--cream-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  /* Carte d'inscription */
+  .signup-card {
+    background: white;
+    border: 1px solid var(--cream-darker);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .signup-card:hover {
+    box-shadow: 0 12px 35px rgba(166, 124, 82, 0.15);
+  }
+
+  /* Logo */
+  .signup-logo {
+    margin: 0 auto 1rem;
+    display: block;
+    width: 100px;
+    height: 100px;
+  }
+
+  /* Titres */
+  .signup-title {
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+
+  .signup-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--accent-brown);
+    border-radius: 2px;
+  }
+
+  /* Formulaires */
+  .form-label {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .form-control {
+    border: 1px solid var(--cream-darker);
+    border-radius: 8px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  .form-control:focus {
+    border-color: var(--accent-brown);
+    box-shadow: 0 0 0 0.2rem rgba(166, 124, 82, 0.25);
+  }
+
+  .form-control::placeholder {
+    color: var(--text-light);
+    opacity: 0.7;
+  }
+
+  /* Texte d'information */
+  .form-text {
+    color: var(--text-light);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }
+
+  /* Validation */
+  .is-valid {
+    border-color: #28a745 !important;
+  }
+
+  .is-invalid {
+    border-color: #dc3545 !important;
+  }
+
+  .invalid-feedback {
+    font-size: 0.8rem;
+    color: #dc3545;
+    margin-top: 0.25rem;
+  }
+
+  /* Boutons */
+  .btn-brown {
+    background: var(--accent-brown);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .btn-brown:hover {
+    background: var(--accent-brown-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(166, 124, 82, 0.3);
+  }
+
+  /* Groupes d'entrée */
+  .input-group {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .input-group .form-control {
+    border-right: none;
+  }
+
+  .input-group .btn {
+    background: var(--cream-light);
+    border: 1px solid var(--cream-darker);
+    border-left: none;
+    color: var(--text-light);
+  }
+
+  .input-group .btn:hover {
+    background: var(--cream-dark);
+    color: var(--accent-brown);
+  }
+
+  /* Liens */
+  .signup-link {
+    color: var(--accent-brown);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .signup-link:hover {
+    color: var(--accent-brown-dark);
+    text-decoration: underline;
+  }
+
+  /* Textes */
+  .signup-text {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  /* Alertes */
+  .alert {
+    border-radius: 8px;
+    border: 1px solid;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+
+  .alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+  }
+
+  .alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+  }
+
+  /* Séparateur */
+  .border-top {
+    border-color: var(--cream-darker) !important;
+  }
+
+  /* Responsive */
+  @media (max-width: 576px) {
+    .signup-card {
+      padding: 1.5rem;
+      margin: 0 1rem;
+    }
+    
+    .signup-title {
+      font-size: 1.3rem;
+    }
+    
+    .signup-logo {
+      width: 80px;
+      height: 80px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="signup-page">
+    <div class="signup-card">
+        <!-- Logo et titre -->
+        <div class="text-center mb-4">
+            <model-viewer 
+                src="{% static 'image/logo/site_logo.glb' %}" 
+                alt="Logo HStore" 
+                class="signup-logo" 
+                auto-rotate 
+                camera-controls 
+                background-color="#FFFFFF">
+            </model-viewer>
+            <h2 class="signup-title">Créer un compte</h2>
+        </div>
+
+        <!-- Messages d'alerte -->
+        {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+            <div class="alert alert-dismissible fade show 
+                {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}" 
+                role="alert" data-auto-dismiss="10000">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Formulaire -->
+        <form method="POST" id="signupForm" novalidate>
+            {% csrf_token %}
+            
+            <!-- Nom d'utilisateur -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Nom d'utilisateur</label>
+                <input type="text" 
+                    class="form-control" 
+                    id="username" 
+                    name="username" 
+                    required
+                    minlength="3"
+                    maxlength="30"
+                    pattern="[a-zA-Z0-9_]+"
+                    placeholder="Choisissez un nom d'utilisateur">
+                <div class="form-text">
+                    3-30 caractères, lettres, chiffres et underscores uniquement.
+                </div>
+                <div class="invalid-feedback" id="usernameError">
+                    Veuillez choisir un nom d'utilisateur valide.
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Adresse e-mail</label>
+                <input type="email" 
+                    class="form-control" 
+                    id="email" 
+                    name="email" 
+                    required
+                    placeholder="exemple@mail.com">
+                <div class="invalid-feedback" id="emailError">
+                    Veuillez entrer une adresse email valide.
+                </div>
+            </div>
+
+            <!-- Mot de passe -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Mot de passe</label>
+                <div class="input-group">
+                    <input type="password" 
+                        class="form-control" 
+                        name="password" 
+                        id="password"
+                        required
+                        minlength="6"
+                        placeholder="Au moins 6 caractères">
+                    <button class="btn" type="button" id="togglePassword">
+                        <i class="bi bi-eye-slash" id="passwordIcon"></i>
+                    </button>
+                </div>
+                <div class="form-text">
+                    Le mot de passe doit contenir au moins 6 caractères.
+                </div>
+                <div class="invalid-feedback" id="passwordError">
+                    Le mot de passe doit contenir au moins 6 caractères.
+                </div>
+            </div>
+
+            <!-- Confirmation du mot de passe -->
+            <div class="mb-4">
+                <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                <div class="input-group">
+                    <input type="password" 
+                        class="form-control" 
+                        id="confirm_password" 
+                        name="confirm_password" 
+                        required
+                        placeholder="Retapez votre mot de passe">
+                    <button class="btn" type="button" id="toggleConfirmPassword">
+                        <i class="bi bi-eye-slash" id="confirmPasswordIcon"></i>
+                    </button>
+                </div>
+                <div class="invalid-feedback" id="confirmPasswordError">
+                    Les mots de passe ne correspondent pas.
+                </div>
+            </div>
+
+            <!-- Bouton de soumission -->
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn-brown">
+                    Créer votre compte
+                </button>
+            </div>
+        </form>
+
+        <!-- Conditions d'utilisation -->
+        <div class="text-center mb-3">
+            <p class="signup-text">
+                En créant un compte, vous acceptez nos 
+                <a href="#" class="signup-link">Conditions d'utilisation</a> 
+                et notre 
+                <a href="#" class="signup-link">Notice Protection de vos Informations Personnelles</a>.
+            </p>
+        </div>
+
+        <!-- Lien vers connexion -->
+        <div class="border-top pt-3">
+            <p class="text-center signup-text mb-0">
+                Vous avez déjà un compte ?
+                <a href="{% url 'signin' %}" class="signup-link fw-semibold">Se connecter</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<!-- Script pour le model-viewer -->
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+<!-- JavaScript pour la validation et gestion des messages -->
+<script>
+    // Auto-dismiss des alertes après 10 secondes
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('[data-auto-dismiss]');
+        alerts.forEach(alert => {
+            const duration = parseInt(alert.getAttribute('data-auto-dismiss'));
+            setTimeout(() => {
+                if (alert && alert.classList.contains('show')) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, duration);
+        });
+
+        // Fonction pour basculer l'affichage du mot de passe
+        function togglePasswordVisibility(passwordField, iconElement) {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            // Changer l'icône
+            if (type === 'text') {
+                iconElement.classList.remove('bi-eye-slash');
+                iconElement.classList.add('bi-eye');
+            } else {
+                iconElement.classList.remove('bi-eye');
+                iconElement.classList.add('bi-eye-slash');
+            }
+        }
+
+        // Événements pour les boutons œil
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const iconElement = document.getElementById('passwordIcon');
+            togglePasswordVisibility(passwordField, iconElement);
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmPasswordField = document.getElementById('confirm_password');
+            const iconElement = document.getElementById('confirmPasswordIcon');
+            togglePasswordVisibility(confirmPasswordField, iconElement);
+        });
+    });
+
+    // Validation en temps réel
+    const form = document.getElementById('signupForm');
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+
+    // Validation du username
+    username.addEventListener('input', function() {
+        const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+        if (!usernameRegex.test(this.value)) {
+            this.classList.add('is-invalid');
+            document.getElementById('usernameError').textContent = 
+                '3-30 caractères, lettres, chiffres et underscores uniquement.';
+        } else {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        }
+    });
+
+    // Validation de l'email
+    email.addEventListener('input', function() {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(this.value)) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        }
+    });
+
+    // Validation du mot de passe
+    password.addEventListener('input', function() {
+        if (this.value.length < 6) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        }
+    });
+
+    // Validation de la confirmation du mot de passe
+    confirmPassword.addEventListener('input', function() {
+        if (this.value !== password.value) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        }
+    });
+
+    // Validation finale avant soumission
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+
+        // Validation username
+        const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+        if (!usernameRegex.test(username.value)) {
+            username.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validation email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.value)) {
+            email.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validation mot de passe
+        if (password.value.length < 6) {
+            password.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validation confirmation mot de passe
+        if (confirmPassword.value !== password.value) {
+            confirmPassword.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            // Afficher une alerte générale
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                Veuillez corriger les erreurs dans le formulaire.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            form.parentNode.insertBefore(alertDiv, form);
+            
+            // Auto-dismiss après 10 secondes
+            setTimeout(() => {
+                if (alertDiv && alertDiv.classList.contains('show')) {
+                    const bsAlert = new bootstrap.Alert(alertDiv);
+                    bsAlert.close();
+                }
+            }, 10000);
+        }
+    });
+
+    // Réinitialiser les validations quand l'utilisateur commence à taper
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+</script>
+{% endblock content %}

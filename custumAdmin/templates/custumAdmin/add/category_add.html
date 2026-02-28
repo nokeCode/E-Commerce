@@ -1,0 +1,500 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% block title %}Ajouter une catégorie - phénix{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        color: var(--text-dark);
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header h2:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--primary-brown);
+        border-radius: 3px;
+    }
+
+    .btn-header-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-discard {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.75rem 1.5rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-discard:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-save {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-save:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+    }
+
+    .form-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+    }
+
+    .form-label {
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid var(--cream-border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 0.25rem rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+
+    .form-control-lg {
+        font-size: 1.1rem;
+        padding: 1rem 1.25rem;
+    }
+
+    .form-control[readonly] {
+        background: var(--cream-light);
+        cursor: not-allowed;
+    }
+
+    /* ========== ÉDITEUR DE TEXTE ========== */
+    .editor-toolbar {
+        background: var(--cream-light);
+        border: 2px solid var(--cream-border);
+        border-bottom: none;
+        border-radius: 12px 12px 0 0;
+        padding: 0.5rem;
+        display: flex;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-btn {
+        background: white;
+        border: 1px solid var(--cream-border);
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .toolbar-btn:hover {
+        background: var(--cream-light);
+        border-color: var(--primary-brown);
+        color: var(--primary-brown);
+    }
+
+    .toolbar-btn i {
+        font-size: 1rem;
+    }
+
+    .editor-content {
+        border: 2px solid var(--cream-border);
+        border-radius: 0 0 12px 12px;
+        padding: 1rem;
+        min-height: 200px;
+        overflow-y: auto;
+        background: white;
+    }
+
+    .editor-content:focus {
+        outline: none;
+        border-color: var(--primary-brown);
+    }
+
+    /* ========== PHOTO UPLOAD ========== */
+    .photo-upload-container {
+        margin-top: 1rem;
+        padding: 1.5rem;
+        border: 2px dashed var(--cream-border);
+        border-radius: 12px;
+        text-align: center;
+        background: var(--cream-light);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .photo-upload-container:hover {
+        border-color: var(--primary-brown);
+        background: white;
+    }
+
+    .photo-upload-container i {
+        font-size: 2rem;
+        color: var(--cream-border);
+        margin-bottom: 0.5rem;
+    }
+
+    .photo-preview {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 12px;
+        border: 3px solid var(--primary-brown);
+        margin: 1rem auto;
+        display: none;
+    }
+
+    .photo-preview.visible {
+        display: block;
+    }
+
+    .remove-photo {
+        color: var(--danger-color);
+        cursor: pointer;
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+
+    /* ========== OPTIONS ========== */
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--cream-border);
+        border-radius: 4px;
+        cursor: pointer;
+        accent-color: var(--primary-brown);
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .btn-header-group {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .btn-discard, .btn-save {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .options-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÊTE -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 page-header">
+        <div>
+            <h2 class="fw-bold mb-2">Ajouter une catégorie</h2>
+            <p class="text-muted mb-0">Créez une nouvelle catégorie pour organiser vos produits</p>
+        </div>
+        <div class="btn-header-group">
+            <a href="{% url 'category_list' %}" class="btn-discard">
+                <i class="fas fa-regular fa-xmark"></i> Annuler
+            </a>
+            <button type="submit" form="categoryForm" class="btn-save">
+                <i class="fas fa-regular fa-floppy-disk"></i> Enregistrer
+            </button>
+        </div>
+    </div>
+
+    <!-- FORMULAIRE -->
+    <form id="categoryForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-4">
+            <!-- COLONNE PRINCIPALE -->
+            <div class="col-lg-8">
+                <div class="form-card">
+                    <!-- Nom de la catégorie -->
+                    <div class="mb-4">
+                        <label class="form-label">Nom de la catégorie <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="categoryName" class="form-control form-control-lg" 
+                               placeholder="Ex: Électronique, Vêtements, Maison..." required>
+                    </div>
+
+                    <!-- Slug (auto-généré) -->
+                    <div class="mb-4">
+                        <label class="form-label">Slug (URL)</label>
+                        <input type="text" name="slug" id="categorySlug" class="form-control" 
+                               placeholder="auto-généré..." readonly>
+                        <small class="text-muted">Généré automatiquement à partir du nom</small>
+                    </div>
+
+                    <!-- Icone -->
+                    <div class="mb-4">
+                        <label class="form-label">Icone de la catégorie</label>
+                        <input type="text" name="icone" id="" class="form-control" placeholder="fas fa-regular / url(icone)">
+                        <small class="text-muted">Laissez vide pour une catégorie principale</small>
+                    </div>
+
+                    <!-- Description avec éditeur -->
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        
+                        <!-- Barre d'outils -->
+                        <div class="editor-toolbar">
+                            <button type="button" class="toolbar-btn" onclick="formatText('bold')">
+                                <i class="fas fa-regular fa-bold"></i> Gras
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('italic')">
+                                <i class="fas fa-regular fa-italic"></i> Italique
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('underline')">
+                                <i class="fas fa-regular fa-underline"></i> Souligné
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('insertUnorderedList')">
+                                <i class="fas fa-regular fa-list-ul"></i> Liste
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('insertOrderedList')">
+                                <i class="fas fa-regular fa-list-ol"></i> Liste numérotée
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('createLink')">
+                                <i class="fas fa-regular fa-link"></i> Lien
+                            </button>
+                        </div>
+
+                        <!-- Zone d'édition -->
+                        <div id="editor" class="editor-content" contenteditable="true">
+                            Écrivez une description ici...
+                        </div>
+
+                        <!-- Champ caché pour soumettre le contenu -->
+                        <textarea name="description" id="descriptionHidden" hidden></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLONNE LATÉRALE -->
+            <div class="col-lg-4">
+                <div class="form-card">
+                    <!-- Image de la catégorie -->
+                    <h5 class="fw-bold mb-3" style="color: var(--text-dark);">
+                        <i class="fas fa-regular fa-image me-2" style="color: var(--primary-brown);"></i>
+                        Image
+                    </h5>
+
+                    <div id="photoDrop" class="photo-upload-container">
+                        <i class="fas fa-regular fa-cloud-arrow-up"></i>
+                        <p>Déposez une image ici ou cliquez pour parcourir</p>
+                        <small class="text-muted">Format: JPG, PNG (max 2 Mo)</small>
+                        <input type="file" id="photoInput" name="image" accept="image/*" hidden>
+                    </div>
+
+                    <img id="photoPreview" class="photo-preview" alt="Aperçu">
+
+                    <a href="#" id="removePhoto" class="remove-photo" style="display: none;">
+                        <i class="fas fa-regular fa-trash-can me-1"></i> Supprimer l'image
+                    </a>
+
+                    <!-- Options -->
+                    <h5 class="fw-bold mt-4 mb-3" style="color: var(--text-dark);">
+                        <i class="fas fa-regular fa-gear me-2" style="color: var(--primary-brown);"></i>
+                        Options
+                    </h5>
+
+                    <div class="options-grid">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="is_active" id="isActive" checked>
+                            <label class="form-check-label" for="isActive">Active</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="is_featured" id="isFeatured">
+                            <label class="form-check-label" for="isFeatured">À la une</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="show_in_menu" id="showInMenu" checked>
+                            <label class="form-check-label" for="showInMenu">Afficher dans le menu</label>
+                        </div>
+                    </div>
+
+                    <!-- Ordre d'affichage -->
+                    <div class="mt-4">
+                        <label class="form-label">Ordre d'affichage</label>
+                        <input type="number" name="display_order" class="form-control" value="0" min="0">
+                        <small class="text-muted">Les nombres les plus petits s'affichent en premier</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        /* ========== AUTO-GÉNÉRATION DU SLUG ========== */
+        const nameInput = document.getElementById('categoryName');
+        const slugInput = document.getElementById('categorySlug');
+
+        if (nameInput && slugInput) {
+            nameInput.addEventListener('keyup', function() {
+                let slug = this.value.toLowerCase()
+                                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // enlève les accents
+                                    .replace(/[^a-z0-9]+/g, '-')
+                                    .replace(/^-|-$/g, '');
+                slugInput.value = slug;
+            });
+        }
+
+        /* ========== UPLOAD D'IMAGE ========== */
+        const dropzone = document.getElementById('photoDrop');
+        const fileInput = document.getElementById('photoInput');
+        const preview = document.getElementById('photoPreview');
+        const removeBtn = document.getElementById('removePhoto');
+
+        if (dropzone && fileInput) {
+            dropzone.addEventListener('click', () => fileInput.click());
+
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.style.borderColor = 'var(--primary-brown)';
+                dropzone.style.background = 'white';
+            });
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.style.borderColor = '';
+                dropzone.style.background = '';
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.style.borderColor = '';
+                dropzone.style.background = '';
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    fileInput.files = e.dataTransfer.files;
+                    showPreview(e.dataTransfer.files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    showPreview(this.files[0]);
+                }
+            });
+        }
+
+        function showPreview(file) {
+            if (!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.classList.add('visible');
+                if (removeBtn) removeBtn.style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                fileInput.value = '';
+                preview.src = '';
+                preview.classList.remove('visible');
+                removeBtn.style.display = 'none';
+            });
+        }
+
+        /* ========== ÉDITEUR DE TEXTE ========== */
+        window.formatText = function(command) {
+            document.execCommand(command, false, null);
+            if (command === 'createLink') {
+                let url = prompt("Entrez l'URL du lien:", "https://");
+                if (url) document.execCommand(command, false, url);
+            }
+            document.getElementById('editor').focus();
+        };
+
+        // Sauvegarder le contenu de l'éditeur avant soumission
+        document.getElementById('categoryForm').addEventListener('submit', function() {
+            document.getElementById('descriptionHidden').value = 
+                document.getElementById('editor').innerHTML;
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,783 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% block title %}{{ product.name }} - Détail produit{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+    }
+
+    /* ========== EN-TÊTE ========== */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .btn-back {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-right: 1rem;
+    }
+
+    .btn-back:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateX(-3px);
+    }
+
+    .btn-edit {
+        background: var(--primary-brown);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-edit:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(166, 124, 82, 0.3);
+        color: white;
+    }
+
+    .product-id-badge {
+        background: var(--cream-light);
+        border: 1px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.25rem 1rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-left: 1rem;
+    }
+
+    /* ========== STATISTIQUES ========== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: var(--primary-brown);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.1);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--cream-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        color: var(--primary-brown);
+        font-size: 1.2rem;
+        border: 2px solid var(--cream-border);
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stock-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+    }
+
+    .stock-high { background: var(--success-color); }
+    .stock-medium { background: var(--warning-color); }
+    .stock-low { background: var(--danger-color); }
+
+    /* ========== IMAGE PRINCIPALE ========== */
+    .main-image-container {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .main-product-image {
+        max-width: 100%;
+        max-height: 250px;
+        object-fit: contain;
+        border-radius: 12px;
+    }
+
+    .image-gallery {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .gallery-thumb {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 2px solid var(--cream-border);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .gallery-thumb:hover {
+        border-color: var(--primary-brown);
+        transform: scale(1.1);
+    }
+
+    .gallery-thumb.active {
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.3);
+    }
+
+    /* ========== CARTES INFO ========== */
+    .info-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+    }
+
+    .info-card h5 {
+        color: var(--text-dark);
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--cream-light);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .info-card h5 i {
+        color: var(--primary-brown);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .info-item {
+        margin-bottom: 1rem;
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    /* ========== GRAPHIQUE ========== */
+    .chart-container {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .chart-title {
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .chart-period {
+        background: var(--cream-light);
+        border-radius: 20px;
+        padding: 0.25rem;
+        display: inline-flex;
+    }
+
+    .period-btn {
+        border: none;
+        background: transparent;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+    }
+
+    .period-btn:hover {
+        background: white;
+        color: var(--primary-brown);
+    }
+
+    .period-btn.active {
+        background: var(--primary-brown);
+        color: white;
+    }
+
+    /* ========== AVIS CLIENTS ========== */
+    .review-item {
+        border-bottom: 1px solid var(--cream-light);
+        padding: 1.25rem 0;
+    }
+
+    .review-item:last-child {
+        border-bottom: none;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .review-author {
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .review-rating {
+        color: #FFB800;
+        letter-spacing: 2px;
+    }
+
+    .review-date {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .review-comment {
+        color: var(--text-dark);
+        line-height: 1.5;
+    }
+
+    .review-actions {
+        margin-top: 0.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .review-action-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+    }
+
+    .review-action-btn:hover {
+        color: var(--primary-brown);
+    }
+
+    /* ========== TAGS ========== */
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .product-tag {
+        background: var(--cream-light);
+        border: 1px solid var(--cream-border);
+        color: var(--text-dark);
+        padding: 0.35rem 1rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .product-tag:hover {
+        background: var(--primary-brown);
+        color: white;
+        border-color: var(--primary-brown);
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÊTE AVEC RETOUR -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 page-header">
+        <div class="d-flex align-items-center">
+            <a href="{% url 'product_list' %}" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Retour
+            </a>
+            <div>
+                <h2 class="fw-bold mb-1">{{ product.name }}</h2>
+                <div>
+                    <span class="product-id-badge">
+                        <i class="fa-solid fa-hashtag"></i> ID: {{ product.id }}
+                    </span>
+                    {% if product.sku %}
+                    <span class="product-id-badge">
+                        <i class="fa-solid fa-barcode"></i> SKU: {{ product.sku }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'product_edit' product.id %}" class="btn-edit">
+            <i class="fa-solid fa-pen"></i> Modifier le produit
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- COLONNE GAUCHE (4 colonnes) -->
+        <div class="col-lg-4">
+            <!-- IMAGE PRINCIPALE -->
+            <div class="main-image-container">
+                {% with main_image=product.images.first %}
+                    {% if main_image and main_image.image %}
+                        <img src="{{ main_image.image.url }}" class="main-product-image" 
+                             id="mainProductImage" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="https://placehold.co/400x250/F7F3E9/A67C52?text=Aucune+image" 
+                             class="main-product-image" alt="Aucune image">
+                    {% endif %}
+                {% endwith %}
+                
+                <!-- GALERIE D'IMAGES -->
+                {% if product.images.all|length > 1 %}
+                <div class="image-gallery">
+                    {% for img in product.images.all %}
+                    <img src="{% if img.image %}{{ img.image.url }}{% else %}https://placehold.co/70x70/F7F3E9/A67C52?text=Image{% endif %}" 
+                         class="gallery-thumb {% if forloop.first %}active{% endif %}" 
+                         onclick="changeMainImage(this)" 
+                         alt="Miniature">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- STATISTIQUES -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="stat-value">{{ total_sales|default:"0" }}</div>
+                    <div class="stat-label">Ventes totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div class="stat-value">{{ reviews_count|default:"0" }}</div>
+                    <div class="stat-label">Avis clients</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-box"></i>
+                    </div>
+                    <div class="stat-value">{{ product.stock }}</div>
+                    <div class="stat-label">
+                        <span class="stock-indicator 
+                            {% if product.stock > 10 %}stock-high
+                            {% elif product.stock > 5 %}stock-medium
+                            {% else %}stock-low{% endif %}">
+                        </span>
+                        En stock
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFORMATIONS COMPLÉMENTAIRES -->
+            <div class="info-card">
+                <h5>
+                    <i class="fa-solid fa-circle-info"></i>
+                    Détails produit
+                </h5>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Catégorie</div>
+                        <div class="info-value">
+                            {% if product.category %}
+                                <a href="?category={{ product.category.id }}" style="color: var(--primary-brown);">
+                                    {{ product.category.name }}
+                                </a>
+                            {% else %}
+                                Non catégorisé
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Marque</div>
+                        <div class="info-value">
+                            {% if product.brand %}
+                                {{ product.brand.name }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Prix</div>
+                        <div class="info-value">
+                            <span style="color: var(--primary-dark); font-weight: 800;">${{ product.price }}</span>
+                            {% if product.old_price %}
+                                <span style="text-decoration: line-through; color: var(--text-muted); font-size: 0.9rem; margin-left: 0.5rem;">
+                                    ${{ product.old_price }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Statut</div>
+                        <div class="info-value">
+                            {% if product.is_published %}
+                                <span class="badge-status" style="background: rgba(40, 167, 69, 0.1); color: var(--success-color); border: 1px solid var(--success-color);">
+                                    <i class="fa-solid fa-eye me-1"></i> Publié
+                                </span>
+                            {% else %}
+                                <span class="badge-status" style="background: rgba(108, 117, 125, 0.1); color: var(--text-muted); border: 1px solid var(--cream-border);">
+                                    <i class="fa-solid fa-eye-slash me-1"></i> Brouillon
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAGS -->
+                {% if product.tags.all %}
+                <div class="mt-3">
+                    <div class="info-label mb-2">Tags</div>
+                    <div class="tags-container">
+                        {% for tag in product.tags.all %}
+                            <a href="?tag={{ tag.id }}" class="product-tag">{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- DATES -->
+            <div class="info-card">
+                <h5>
+                    <i class="fa-solid fa-calendar"></i>
+                    Chronologie
+                </h5>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Créé le :</span>
+                    <span class="fw-semibold">{{ product.created_at|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Dernière modif :</span>
+                    <span class="fw-semibold">{{ product.updated_at|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Par :</span>
+                    <span class="fw-semibold">{{ product.created_by|default:"Admin" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLONNE DROITE (8 colonnes) -->
+        <div class="col-lg-8">
+            <!-- GRAPHIQUE DES VENTES -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h5 class="chart-title">
+                        <i class="fa-solid fa-chart-line me-2" style="color: var(--primary-brown);"></i>
+                        Ventes des 7 derniers jours
+                    </h5>
+                    <div class="chart-period">
+                        <button class="period-btn active">7j</button>
+                        <button class="period-btn">30j</button>
+                        <button class="period-btn">90j</button>
+                    </div>
+                </div>
+                <canvas id="salesChart" height="180"></canvas>
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="info-card">
+                <h5>
+                    <i class="fa-solid fa-file-lines"></i>
+                    Description
+                </h5>
+                <p class="mb-0" style="color: var(--text-dark); line-height: 1.7;">
+                    {{ product.description|linebreaksbr }}
+                </p>
+            </div>
+
+            <!-- AVIS CLIENTS -->
+            <div class="info-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fa-regular fa-star"></i>
+                        Avis clients ({{ reviews_count }})
+                    </h5>
+                    <div>
+                        <span style="color: #FFB800;">
+                            {% with avg_rating=product.average_rating|default:0 %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= avg_rating %}
+                                        <i class="fa-solid fa-star"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-2 text-muted">{{ avg_rating|floatformat:1 }}/5</span>
+                            {% endwith %}
+                        </span>
+                    </div>
+                </div>
+
+                {% if reviews %}
+                    {% for review in reviews %}
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="review-author">
+                                <i class="fa-solid fa-circle-user me-1" style="color: var(--primary-brown);"></i>
+                                {{ review.user.username }}
+                            </span>
+                            <span class="review-rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                        <div class="review-date">{{ review.created_at|date:"d F Y" }}</div>
+                        <p class="review-comment mt-2">{{ review.comment }}</p>
+                        <div class="review-actions">
+                            <button class="review-action-btn" onclick="toggleHelpful(this)">
+                                <i class="fa-solid fa-thumbs-up"></i> Utile ({{ review.helpful_count|default:0 }})
+                            </button>
+                            <button class="review-action-btn" onclick="reportReview({{ review.id }})">
+                                <i class="fa-solid fa-flag"></i> Signaler
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- LIEN VOIR TOUS LES AVIS -->
+                    <div class="text-center mt-3">
+                        <a href="#" style="color: var(--primary-brown); font-weight: 600;">
+                            Voir tous les avis <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fa-solid fa-message fa-2x mb-2" style="color: var(--cream-border);"></i>
+                        <p class="text-muted mb-0">Aucun avis pour ce produit</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        /* ========== CHANGEMENT D'IMAGE PRINCIPALE ========== */
+        window.changeMainImage = function(thumbnail) {
+            const mainImage = document.getElementById('mainProductImage');
+            if (mainImage && thumbnail) {
+                mainImage.src = thumbnail.src;
+                
+                // Mettre à jour la classe active
+                document.querySelectorAll('.gallery-thumb').forEach(thumb => {
+                    thumb.classList.remove('active');
+                });
+                thumbnail.classList.add('active');
+            }
+        };
+
+        /* ========== GRAPHIQUE DES VENTES ========== */
+        const ctx = document.getElementById('salesChart');
+        if (ctx) {
+            // Données par défaut (à remplacer par vos données dynamiques)
+            const defaultData = {{ last7days_values|safe|default:'[0,0,0,0,0,0,0]' }};
+            const defaultLabels = {{ last7days_labels|safe|default:'["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"]' }};
+            
+            const salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: defaultLabels,
+                    datasets: [{
+                        label: 'Ventes',
+                        data: defaultData,
+                        borderColor: '#A67C52',
+                        backgroundColor: 'rgba(166, 124, 82, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#A67C52',
+                        pointBorderColor: 'white',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'white',
+                            titleColor: '#5D4037',
+                            bodyColor: '#8D6E63',
+                            borderColor: '#D4C9A8',
+                            borderWidth: 2,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(166, 124, 82, 0.1)' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Gestionnaire pour changer la période
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Ici vous pouvez ajouter une requête AJAX pour charger les données de la période sélectionnée
+                    const period = this.textContent;
+                    console.log(`Changer période: ${period}`);
+                    
+                    // Exemple : animation de chargement
+                    ctx.style.opacity = '0.5';
+                    setTimeout(() => {
+                        ctx.style.opacity = '1';
+                        // Mettre à jour les données ici
+                    }, 300);
+                });
+            });
+        }
+
+        /* ========== AVIS "UTILE" ========== */
+        window.toggleHelpful = function(btn) {
+            const icon = btn.querySelector('i');
+            const countSpan = btn.innerText.match(/\d+/);
+            
+            if (btn.classList.contains('text-primary')) {
+                btn.classList.remove('text-primary');
+                icon.classList.replace('fa-solid', 'fa-regular');
+                if (countSpan) {
+                    btn.innerHTML = btn.innerHTML.replace(/\d+/, parseInt(countSpan[0]) - 1);
+                }
+            } else {
+                btn.classList.add('text-primary');
+                icon.classList.replace('fa-regular', 'fa-solid');
+                if (countSpan) {
+                    btn.innerHTML = btn.innerHTML.replace(/\d+/, parseInt(countSpan[0]) + 1);
+                }
+            }
+        };
+
+        /* ========== SIGNALER UN AVIS ========== */
+        window.reportReview = function(reviewId) {
+            // Ici vous pouvez ajouter une requête AJAX pour signaler l'avis
+            console.log('Signaler avis:', reviewId);
+            
+            // Afficher une notification
+            const toast = document.createElement('div');
+            toast.className = 'alert alert-info alert-dismissible fade show position-fixed bottom-0 end-0 m-3';
+            toast.innerHTML = `
+                <i class="fa-regular fa-flag me-2"></i>
+                Avis signalé. Merci de votre contribution.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        };
+    });
+</script>
+{% endblock %}

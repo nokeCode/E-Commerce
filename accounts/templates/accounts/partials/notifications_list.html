@@ -1,0 +1,33 @@
+<div class="mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <strong>Notifications</strong>
+        </div>
+        <div>
+            <button class="btn-outline-brown btn-sm me-2" id="markAllReadBtn">Marquer tout lu</button>
+            <button class="btn-outline-brown btn-sm" id="clearReadBtn">Supprimer lus</button>
+        </div>
+    </div>
+
+    <div class="list-group">
+        {% for n in notifications %}
+        <div class="list-group-item d-flex justify-content-between align-items-start {% if not n.is_read %}fw-bold{% endif %}" data-notif-id="{{ n.id }}">
+            <div>
+                <div>{{ n.title }}</div>
+                <div class="small text-muted">{{ n.created_at|date:"d M Y H:i" }}</div>
+                {% if n.message %}<div class="mt-1">{{ n.message }}</div>{% endif %}
+            </div>
+            <div class="text-end">
+                {% if not n.is_read %}
+                <button class="btn btn-outline-secondary btn-sm notif-mark-read" data-id="{{ n.id }}">Marquer lu</button>
+                {% else %}
+                <button class="btn btn-outline-secondary btn-sm notif-mark-unread" data-id="{{ n.id }}">Marquer non lu</button>
+                {% endif %}
+                <button class="btn btn-outline-danger btn-sm ms-2 notif-delete" data-id="{{ n.id }}">Supprimer</button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="p-3 text-muted">Aucune notification.</div>
+        {% endfor %}
+    </div>
+</div>

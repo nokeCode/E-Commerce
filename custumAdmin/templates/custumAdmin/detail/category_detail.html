@@ -1,0 +1,594 @@
+{% extends "custumAdmin/base_admin.html" %}
+{% block title %}{{ category.name }} - Détail catégorie{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ========== VARIABLES ========== */
+    :root {
+        --primary-brown: #A67C52;
+        --primary-dark: #8B5A3C;
+        --cream-bg: #F7F3E9;
+        --cream-light: #FDFBF5;
+        --cream-border: #D4C9A8;
+        --text-dark: #5D4037;
+        --text-muted: #8D6E63;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+    }
+
+    /* ========== EN-TÊTE ========== */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .btn-back {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-right: 1rem;
+    }
+
+    .btn-back:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateX(-3px);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-action-header {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 30px;
+        padding: 0.6rem 1.2rem;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-action-header:hover {
+        border-color: var(--primary-brown);
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-action-header.delete:hover {
+        border-color: var(--danger-color);
+        background: var(--danger-color);
+        color: white;
+    }
+
+    /* ========== BADGES ========== */
+    .badge-custom {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .badge-active {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+    }
+
+    .badge-inactive {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+        border: 1px solid var(--danger-color);
+    }
+
+    .badge-featured {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: white;
+    }
+
+    /* ========== STATISTIQUES ========== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: var(--primary-brown);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.1);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--cream-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: var(--primary-brown);
+        font-size: 1.2rem;
+        border: 2px solid var(--cream-border);
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+    }
+
+    /* ========== CARTE PRINCIPALE ========== */
+    .detail-card {
+        background: white;
+        border: 2px solid var(--cream-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 20px rgba(166, 124, 82, 0.05);
+    }
+
+    .detail-card h5 {
+        color: var(--text-dark);
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--cream-light);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .detail-card h5 i {
+        color: var(--primary-brown);
+    }
+
+    /* ========== INFORMATIONS ========== */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        margin-bottom: 1rem;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-weight: 500;
+        color: var(--text-dark);
+        font-size: 1.1rem;
+    }
+
+    .info-value a {
+        color: var(--primary-brown);
+        text-decoration: none;
+    }
+
+    .info-value a:hover {
+        text-decoration: underline;
+    }
+
+    /* ========== IMAGE ========== */
+    .category-image-container {
+        background: var(--cream-light);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .category-image {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 12px;
+        border: 3px solid var(--primary-brown);
+    }
+
+    /* ========== DESCRIPTION ========== */
+    .description-content {
+        background: var(--cream-light);
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: var(--text-dark);
+        line-height: 1.8;
+    }
+
+    /* ========== TABLEAU DES SOUS-CATÉGORIES ========== */
+    .subcategory-table {
+        width: 100%;
+    }
+
+    .subcategory-table th {
+        background: var(--cream-light);
+        color: var(--primary-dark);
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        padding: 0.75rem 1rem;
+    }
+
+    .subcategory-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--cream-light);
+    }
+
+    .subcategory-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .subcategory-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 2px solid var(--cream-border);
+    }
+
+    .subcategory-avatar-initial {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--cream-light);
+        color: var(--primary-brown);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        border: 2px solid var(--cream-border);
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .btn-action-header {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- EN-TÊTE AVEC ACTIONS -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 page-header">
+        <div class="d-flex align-items-center">
+            <a href="{% url 'category_list' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <div>
+                <h2 class="fw-bold mb-1">{{ category.name }}</h2>
+                <div class="d-flex gap-2">
+                    <span class="badge-custom {% if category.is_active %}badge-active{% else %}badge-inactive{% endif %}">
+                        {% if category.is_active %}
+                            <i class="fas fa-circle-check"></i> Active
+                        {% else %}
+                            <i class="fas fa-circle-xmark"></i> Inactive
+                        {% endif %}
+                    </span>
+                    {% if category.is_featured %}
+                        <span class="badge-custom badge-featured">
+                            <i class="fas fa-crown"></i> À la une
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <a href="{% url 'category_edit' category.id %}" class="btn-action-header">
+                <i class="fas fa-pen"></i> Modifier
+            </a>
+            <button type="button" class="btn-action-header delete btn-delete" 
+                    data-url="{% url 'category_delete' category.id %}" 
+                    data-name="{{ category.name|escape }}">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </div>
+    </div>
+
+    <!-- STATISTIQUES RAPIDES -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-value">{{ products_count|default:"0" }}</div>
+            <div class="stat-label">Produits</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <div class="stat-value">{{ subcategories_count|default:"0" }}</div>
+            <div class="stat-label">Sous-catégories</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-eye"></i>
+            </div>
+            <div class="stat-value">{{ views_count|default:"0" }}</div>
+            <div class="stat-label">Vues</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- COLONNE GAUCHE -->
+        <div class="col-lg-4">
+            <!-- Image -->
+            <div class="detail-card">
+                <h5>
+                    <i class="fas fa-image"></i>
+                    Image de la catégorie
+                </h5>
+                
+                <div class="category-image-container">
+                    {% if category.image %}
+                        <img src="{{ category.image.url }}" class="category-image" alt="{{ category.name }}">
+                    {% else %}
+                        <div style="width: 150px; height: 150px; margin: 0 auto; background: var(--cream-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--cream-border);">
+                            <i class="fas fa-folder-open fa-3x" style="color: var(--cream-border);"></i>
+                        </div>
+                        <p class="text-muted mt-2">Aucune image</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Informations supplémentaires -->
+            <div class="detail-card">
+                <h5>
+                    <i class="fas fa-info-circle"></i>
+                    Informations
+                </h5>
+
+                <div class="info-item">
+                    <div class="info-label">Slug</div>
+                    <div class="info-value"><code>{{ category.slug }}</code></div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Ordre d'affichage</div>
+                    <div class="info-value">{{ category.display_order|default:"0" }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Dans le menu</div>
+                    <div class="info-value">
+                        {% if category.show_in_menu %}
+                            <span style="color: var(--success-color);"><i class="fas fa-check-circle"></i> Oui</span>
+                        {% else %}
+                            <span class="text-muted">Non</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Date de création</div>
+                    <div class="info-value">{{ category.created_at|date:"d/m/Y H:i" }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Dernière modification</div>
+                    <div class="info-value">{{ category.updated_at|date:"d/m/Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLONNE DROITE -->
+        <div class="col-lg-8">
+            <!-- Description -->
+            <div class="detail-card">
+                <h5>
+                    <i class="fas fa-align-left"></i>
+                    Description
+                </h5>
+                
+                <div class="description-content">
+                    {% if category.description %}
+                        {{ category.description|safe }}
+                    {% else %}
+                        <p class="text-muted mb-0">Aucune description fournie</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Catégorie parente -->
+            {% if category.parent %}
+            <div class="detail-card">
+                <h5>
+                    <i class="fas fa-sitemap"></i>
+                    Catégorie parente
+                </h5>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <div class="subcategory-avatar-initial">
+                        {{ category.parent.name|first|upper }}
+                    </div>
+                    <div>
+                        <a href="{% url 'category_detail' category.parent.id %}" style="color: var(--primary-brown); font-weight: 600; font-size: 1.2rem;">
+                            {{ category.parent.name }}
+                        </a>
+                        <div class="text-muted small">ID: {{ category.parent.id }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Sous-catégories -->
+            {% if subcategories %}
+            <div class="detail-card">
+                <h5>
+                    <i class="fas fa-folder-open"></i>
+                    Sous-catégories ({{ subcategories|length }})
+                </h5>
+
+                <table class="subcategory-table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Produits</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in subcategories %}
+                        <tr>
+                            <td>
+                                <div class="subcategory-item">
+                                    {% if sub.image %}
+                                        <img src="{{ sub.image.url }}" class="subcategory-avatar" alt="{{ sub.name }}">
+                                    {% else %}
+                                        <div class="subcategory-avatar-initial">
+                                            {{ sub.name|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <a href="{% url 'category_detail' sub.id %}" style="color: var(--text-dark); font-weight: 500;">
+                                        {{ sub.name }}
+                                    </a>
+                                </div>
+                            </td>
+                            <td>{{ sub.products_count|default:"0" }}</td>
+                            <td>
+                                {% if sub.is_active %}
+                                    <span class="badge-custom badge-active" style="padding: 0.2rem 0.5rem;">
+                                        <i class="fas fa-circle-check"></i>
+                                    </span>
+                                {% else %}
+                                    <span class="badge-custom badge-inactive" style="padding: 0.2rem 0.5rem;">
+                                        <i class="fas fa-circle-xmark"></i>
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'category_edit' sub.id %}" class="btn-action" style="width: 32px; height: 32px;" title="Modifier">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <!-- Produits récents -->
+            {% if recent_products %}
+            <div class="detail-card">
+                <h5>
+                    <i class="fas fa-box"></i>
+                    Produits récents
+                </h5>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Produit</th>
+                                <th>Prix</th>
+                                <th>Stock</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in recent_products %}
+                            <tr>
+                                <td class="d-flex align-items-center gap-2">
+                                    {% if product.main_image %}
+                                        <img src="{{ product.main_image.url }}" style="width: 32px; height: 32px; border-radius: 6px; object-fit: cover;">
+                                    {% else %}
+                                        <div style="width: 32px; height: 32px; background: var(--cream-light); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-image" style="color: var(--cream-border);"></i>
+                                        </div>
+                                    {% endif %}
+                                    <a href="{% url 'product_detail' product.id %}" style="color: var(--text-dark);">
+                                        {{ product.name|truncatechars:30 }}
+                                    </a>
+                                </td>
+                                <td class="fw-bold" style="color: var(--primary-dark);">${{ product.price }}</td>
+                                <td>{{ product.stock }}</td>
+                                <td>{{ product.created_at|date:"d/m/Y" }}</td>
+                                <td>
+                                    <a href="{% url 'product_edit' product.id %}" class="btn-action" style="width: 32px; height: 32px;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if products_count > 5 %}
+                <div class="text-center mt-3">
+                    <a href="?show=all_products" style="color: var(--primary-brown); font-weight: 600;">
+                        Voir tous les produits <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

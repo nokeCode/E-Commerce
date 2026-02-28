@@ -1,0 +1,1170 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Mon Profil - HStore{% endblock %}
+
+{% block style %}
+<style>
+  /* Variables de couleurs cohérentes */
+  :root {
+    --cream-primary: #F7F3E9;
+    --cream-dark: #E8E2D1;
+    --cream-darker: #D4C9A8;
+    --accent-brown: #A67C52;
+    --accent-brown-dark: #8B5A3C;
+    --text-dark: #5D4037;
+    --text-light: #8D6E63;
+    --cream-light: #FDFBF5;
+  }
+
+  /* Background pour toute la page */
+  .page-background {
+    background-color: var(--cream-primary);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  /* Carte principale */
+  .profile-card {
+    background: white;
+    border: 1px solid var(--cream-darker);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+
+  .profile-card:hover {
+    box-shadow: 0 8px 25px rgba(166, 124, 82, 0.15);
+  }
+
+  /* Photo de profil */
+  .profile-photo-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+  }
+
+  .profile-photo {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 3px solid var(--accent-brown);
+    box-shadow: 0 4px 10px rgba(166, 124, 82, 0.2);
+  }
+
+  .profile-photo-btn {
+    background: var(--accent-brown);
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+  }
+
+  .profile-photo-btn:hover {
+    background: var(--accent-brown-dark);
+    transform: scale(1.1);
+  }
+
+  /* Badges */
+  .profile-badge {
+    background: linear-gradient(135deg, var(--accent-brown) 0%, var(--accent-brown-dark) 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+  }
+
+  /* Menu de navigation */
+  .profile-nav {
+    background: white;
+    border: 1px solid var(--cream-darker);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+
+  .profile-nav-header {
+    background: var(--cream-light);
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid var(--cream-darker);
+  }
+
+  .profile-nav-item {
+    border: none;
+    border-bottom: 1px solid var(--cream-darker);
+    padding: 0.9rem 1.5rem;
+    color: var(--text-dark);
+    background: white;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+  }
+
+  .profile-nav-item:last-child {
+    border-bottom: none;
+  }
+
+  .profile-nav-item:hover {
+    background: var(--cream-light);
+    color: var(--accent-brown);
+    padding-left: 1.8rem;
+  }
+
+  .profile-nav-item.active {
+    background: linear-gradient(135deg, var(--accent-brown) 0%, var(--accent-brown-dark) 100%);
+    color: white;
+    border-left: 4px solid var(--accent-brown-dark);
+  }
+
+  /* Boutons */
+  .btn-brown {
+    background: var(--accent-brown);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-brown:hover {
+    background: var(--accent-brown-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(166, 124, 82, 0.3);
+  }
+
+  .btn-outline-brown {
+    background: transparent;
+    color: var(--accent-brown);
+    border: 2px solid var(--accent-brown);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-outline-brown:hover {
+    background: var(--accent-brown);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* Statistiques */
+  .stats-item {
+    border-right: 1px solid var(--cream-darker);
+    padding: 0.5rem 0;
+  }
+
+  .stats-item:last-child {
+    border-right: none;
+  }
+
+  .stats-number {
+    color: var(--accent-brown);
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Formulaires */
+  .form-label {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control, .form-select {
+    border: 1px solid var(--cream-darker);
+    border-radius: 8px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: var(--accent-brown);
+    box-shadow: 0 0 0 0.2rem rgba(166, 124, 82, 0.25);
+  }
+
+  /* Champs désactivés */
+  .form-control:disabled, .form-select:disabled {
+    background-color: var(--cream-light);
+    color: var(--text-light);
+    border-color: var(--cream-darker);
+    cursor: not-allowed;
+    opacity: 0.8;
+  }
+
+  /* Actions de formulaire */
+  .form-actions {
+    display: none;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--cream-darker);
+  }
+
+  .form-actions.show {
+    display: flex;
+    gap: 0.75rem;
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  /* Switch */
+  .form-check-input:checked {
+    background-color: var(--accent-brown);
+    border-color: var(--accent-brown);
+  }
+
+  /* Tableaux */
+  .profile-table {
+    border: 1px solid var(--cream-darker);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .profile-table thead {
+    background: var(--cream-light);
+  }
+
+  .profile-table th {
+    color: var(--text-dark);
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 2px solid var(--cream-darker);
+  }
+
+  .profile-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--cream-darker);
+  }
+
+  .profile-table tr:hover {
+    background: var(--cream-light);
+  }
+
+  /* Badges de statut */
+  .status-badge {
+    background: var(--cream-light);
+    color: var(--text-dark);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid var(--cream-darker);
+  }
+
+  .status-badge.success {
+    background: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+  }
+
+  .status-badge.warning {
+    background: #fff3cd;
+    color: #856404;
+    border-color: #ffeaa7;
+  }
+
+  /* Adresse cards */
+  .address-card {
+    border: 2px solid var(--cream-darker);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+
+  .address-card:hover {
+    border-color: var(--accent-brown);
+    transform: translateY(-5px);
+  }
+
+  .address-card.default {
+    border-color: var(--accent-brown);
+    border-width: 3px;
+  }
+
+  .address-card-header {
+    background: var(--cream-light);
+    padding: 1rem;
+    border-bottom: 1px solid var(--cream-darker);
+    border-radius: 10px 10px 0 0;
+  }
+
+  .address-card-header.default {
+    background: linear-gradient(135deg, var(--accent-brown) 0%, var(--accent-brown-dark) 100%);
+    color: white;
+  }
+
+  /* Product cards */
+  .wishlist-card {
+    border: 1px solid var(--cream-darker);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+
+  .wishlist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(166, 124, 82, 0.15);
+  }
+
+  .wishlist-card-img {
+    height: 180px;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .wishlist-card-body {
+    padding: 1rem;
+  }
+
+  .wishlist-card-title {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    height: 2.4rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .wishlist-card-price {
+    color: var(--accent-brown);
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  /* Animation pour les tabs */
+  .tab-pane {
+    animation: fadeIn 0.3s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Titres de section */
+  .section-title {
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--accent-brown);
+    border-radius: 2px;
+  }
+
+  /* Icônes */
+  .icon-primary {
+    color: var(--accent-brown);
+  }
+
+  .icon-secondary {
+    color: var(--text-light);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-background">
+    <header>{% include "core/header.html" %}</header>
+    
+    <main class="container-fluid px-4 py-4">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 col-md-4">
+                <!-- Carte profil -->
+                <div class="profile-card text-center">
+                    <!-- Photo de profil -->
+                    <div class="profile-photo-container">
+                        {% if user.profile.photo %}
+                            <img src="{{ user.profile.photo.url }}" class="profile-photo rounded-circle" alt="Photo de profil">
+                        {% else %}
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center profile-photo">
+                                <i class="fas fa-user fa-3x icon-secondary"></i>
+                            </div>
+                        {% endif %}
+                        <button class="profile-photo-btn">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    
+                    <h5 class="mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                    <p class="text-muted small mb-3">{{ user.email }}</p>
+                    
+                    <!-- Badge statut -->
+                    <span class="profile-badge d-inline-block mb-3">
+                        <i class="fas fa-star me-1"></i>{% blocktrans with dt=user.date_joined|date:"M Y" %}Membre depuis {{ dt }}{% endblocktrans %}
+                    </span>
+                    
+                    <!-- Statistiques rapides -->
+                    <div class="row text-center mt-4">
+                        <div class="col-4 stats-item">
+                            <div class="stats-number">12</div>
+                            <small class="text-muted">Commandes</small>
+                        </div>
+                        <div class="col-4 stats-item">
+                            <div class="stats-number">8</div>
+                            <small class="text-muted">Favoris</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-number">5</div>
+                            <small class="text-muted">Avis</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu de navigation -->
+                <div class="profile-nav mb-4">
+                    <div class="profile-nav-header">
+                        <h6 class="mb-0"><i class="fas fa-bars me-2 icon-primary"></i>Navigation</h6>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="#profile" class="profile-nav-item active" data-bs-toggle="tab">
+                            <i class="fas fa-user-circle me-2"></i>{% trans "Profil" %}
+                        </a>
+                        <a href="#security" class="profile-nav-item" data-bs-toggle="tab">
+                            <i class="fas fa-shield-alt me-2"></i>{% trans "Sécurité" %}
+                        </a>
+                        <a href="#addresses" class="profile-nav-item" data-bs-toggle="tab">
+                            <i class="fas fa-map-marker-alt me-2"></i>{% trans "Adresses" %}
+                        </a>
+                        <a href="#orders" class="profile-nav-item" data-bs-toggle="tab">
+                            <i class="fas fa-shopping-bag me-2"></i>{% trans "Commandes" %}
+                        </a>
+                        <a href="#wishlist" class="profile-nav-item" data-bs-toggle="tab">
+                            <i class="fas fa-heart me-2"></i>{% trans "Favoris" %}
+                        </a>
+                        <a href="#notifications" class="profile-nav-item" data-bs-toggle="tab">
+                            <i class="fas fa-bell me-2"></i>{% trans "Notifications" %}
+                        </a>
+                        <a href="#billing" class="profile-nav-item" data-bs-toggle="tab">
+                            <i class="fas fa-credit-card me-2"></i>{% trans "Paiement" %}
+                        </a>
+                        <a href="#preferences" class="profile-nav-item" data-bs-toggle="tab">
+                            <i class="fas fa-cog me-2"></i>{% trans "Préférences" %}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="profile-card">
+                    <h6 class="mb-3">{% trans "Actions rapides" %}</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'logout' %}" class="btn btn-outline-brown">
+                            <i class="fas fa-sign-out-alt me-1"></i>{% trans "Déconnexion" %}
+                        </a>
+                        <button class="btn btn-outline-brown">
+                            <i class="fas fa-download me-1"></i>{% trans "Exporter mes données" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="col-lg-9 col-md-8">
+                <div class="tab-content">
+                    <!-- Onglet Profil -->
+                    <div class="tab-pane fade show active" id="profile">
+                        <div class="profile-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="section-title mb-0">
+                                    <i class="fas fa-user-circle me-2 icon-primary"></i>{% trans "Informations personnelles" %}
+                                </h4>
+                                <button class="btn-brown" id="editProfileBtn" type="button">
+                                    <i class="fas fa-edit me-1"></i>{% trans "Modifier" %}
+                                </button>
+                            </div>
+                            
+                            <!-- Messages Django -->
+                            {% if messages %}
+                            <div class="mb-4">
+                                {% for message in messages %}
+                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <form method="POST" action="{% url 'update_profile' %}" id="profileForm">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Prénom</label>
+                                        <input type="text" class="form-control" id="firstName" 
+                                            name="first_name" value="{{ user.first_name }}" disabled>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nom</label>
+                                        <input type="text" class="form-control" id="lastName" 
+                                            name="last_name" value="{{ user.last_name }}" disabled>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" 
+                                            value="{{ user.email }}" disabled readonly>
+                                        <small class="form-text text-muted">Contactez le support pour modifier votre email</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Téléphone</label>
+                                        <input type="tel" class="form-control" id="phone" 
+                                            name="phone" value="{{ user.phone|default:'Non renseigné' }}" disabled>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Date de naissance</label>
+                                        <input type="date" class="form-control" id="birthDate" 
+                                            name="birth_date" 
+                                            value="{{ user.birth_date|date:'Y-m-d' }}" 
+                                            disabled>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Genre</label>
+                                        <select class="form-select" id="gender" name="gender" disabled>
+                                            <option value="">Non spécifié</option>
+                                            <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Homme</option>
+                                            <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Femme</option>
+                                            <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Autre</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Actions de formulaire (cachées par défaut) -->
+                                <div class="form-actions" id="formActions">
+                                    <button type="submit" class="btn-brown">
+                                        <i class="fas fa-save me-1"></i>Enregistrer
+                                    </button>
+                                    <button type="button" class="btn-outline-brown" id="cancelEditBtn">
+                                        <i class="fas fa-times me-1"></i>Annuler
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Préférences de communication -->
+                        <div class="profile-card mt-4">
+                            <div class="mb-4">
+                                <h5 class="section-title">
+                                    <i class="fas fa-comments me-2 icon-primary"></i>Préférences de communication
+                                </h5>
+                            </div>
+                            <form method="POST" action="{% url 'update_profile' %}">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" 
+                                                name="newsletter" id="newsletter" 
+                                                {% if profile.newsletter %}checked{% endif %} disabled>
+                                            <label class="form-check-label">Newsletter hebdomadaire</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" 
+                                                name="promotions" id="promotions" 
+                                                {% if profile.promotions %}checked{% endif %} disabled>
+                                            <label class="form-check-label">Offres promotionnelles</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" 
+                                                name="sms" id="sms" 
+                                                {% if profile.sms_notifications %}checked{% endif %} disabled>
+                                            <label class="form-check-label">Notifications SMS</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" 
+                                                name="security_alerts" id="securityAlerts" 
+                                                {% if profile.security_alerts %}checked{% endif %} disabled>
+                                            <label class="form-check-label">Alertes de sécurité</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Onglet Sécurité -->
+                    <div class="tab-pane fade" id="security">
+                        <div class="profile-card">
+                            <div class="mb-4">
+                                <h4 class="section-title">
+                                    <i class="fas fa-shield-alt me-2 icon-primary"></i>Sécurité du compte
+                                </h4>
+                            </div>
+                            
+                            <!-- Mot de passe -->
+                            <div class="d-flex justify-content-between align-items-center mb-4 p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Mot de passe</h6>
+                                    <p class="text-muted mb-0">Dernière modification : <span id="passwordLastChanged">Il y a 3 mois</span></p>
+                                </div>
+                                <button class="btn-outline-brown" id="changePasswordBtn">Changer</button>
+                            </div>
+
+                            <!-- 2FA -->
+                            <div class="d-flex justify-content-between align-items-center mb-4 p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Authentification à deux facteurs</h6>
+                                    <p class="text-muted mb-0">Ajoutez une couche de sécurité supplémentaire</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" disabled>
+                                </div>
+                            </div>
+
+                            <!-- Connexions actives -->
+                            <div class="mb-4">
+                                <h6 class="mb-3">Appareils connectés</h6>
+                                <div id="securityContainer">
+                                    <div class="text-center py-4">
+                                        <div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Onglet Adresses -->
+                    <div class="tab-pane fade" id="addresses">
+                        <div class="profile-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="section-title mb-0">
+                                    <i class="fas fa-map-marker-alt me-2 icon-primary"></i>Mes adresses
+                                </h4>
+                                <div>
+                                    <button class="btn-brown" id="newAddressBtn">
+                                        <i class="fas fa-plus me-1"></i>Nouvelle adresse
+                                    </button>
+                                    <button class="btn-outline-brown btn-sm ms-2" id="exportAddressesCsv"><i class="fas fa-file-csv me-1"></i>Exporter CSV</button>
+                                    <button class="btn-outline-brown btn-sm ms-2" id="exportAddressesJson"><i class="fas fa-file-export me-1"></i>Exporter JSON</button>
+                                </div>
+                            </div>
+                            <div id="addressesContainer">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Onglet Commandes -->
+                    <div class="tab-pane fade" id="orders">
+                        <div class="profile-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="section-title mb-0">
+                                    <i class="fas fa-shopping-bag me-2 icon-primary"></i>Historique des commandes
+                                </h4>
+                                <div>
+                                    <button class="btn-outline-brown btn-sm me-2" id="exportOrdersCsv"><i class="fas fa-file-csv me-1"></i>Exporter CSV</button>
+                                    <button class="btn-outline-brown btn-sm" id="exportOrdersJson"><i class="fas fa-file-export me-1"></i>Exporter JSON</button>
+                                </div>
+                            </div>
+                            <div id="ordersContainer">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Onglet Favoris -->
+                    <div class="tab-pane fade" id="wishlist">
+                        <div class="profile-card">
+                            <div class="mb-4">
+                                <h4 class="section-title">
+                                    <i class="fas fa-heart me-2 icon-primary"></i>Mes produits favoris
+                                </h4>
+                            </div>
+                            <div class="row">
+                                {% if favorites %}
+                                    {% for fav in favorites %}
+                                        {% with p=fav.product %}
+                                        <div class="col-lg-3 col-md-6 mb-4">
+                                            <div class="wishlist-card">
+                                                <div class="position-relative">
+                                                    {% with img=p.images.first %}
+                                                        {% if img %}
+                                                            <img src="{{ img.image.url }}" class="wishlist-card-img" alt="{{ p.name }}">
+                                                        {% else %}
+                                                            <img src="https://via.placeholder.com/300x200" class="wishlist-card-img" alt="{{ p.name }}">
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                    <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 rounded-circle" style="width: 35px; height: 35px;" onclick="toggleWishlist(this)" data-fav-url="{% url 'product_favorite' p.slug %}">
+                                                        <i class="fas fa-heart"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="wishlist-card-body">
+                                                    <h6 class="wishlist-card-title">{{ p.name }}</h6>
+                                                    <p class="wishlist-card-price">{{ p.price|floatformat:2 }} CFA</p>
+                                                    <div class="d-grid">
+                                                        <a href="{% url 'product' p.slug %}" class="btn-outline-brown btn-sm">{% trans "Voir le produit" %}</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">Vous n'avez aucun produit dans vos favoris.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Autres onglets -->
+                    <div class="tab-pane fade" id="notifications">
+                        <div class="profile-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="section-title mb-0">Notifications</h4>
+                                <div>
+                                    <button class="btn-outline-brown btn-sm me-2" id="exportNotificationsCsv"><i class="fas fa-file-csv me-1"></i>Exporter CSV</button>
+                                    <button class="btn-outline-brown btn-sm me-2" id="exportNotificationsJson"><i class="fas fa-file-export me-1"></i>Exporter JSON</button>
+                                </div>
+                            </div>
+                            <div id="notificationsContainer">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="billing">
+                        <div class="profile-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="section-title mb-0">Paiement</h4>
+                                <div>
+                                    <button class="btn-outline-brown btn-sm me-2" id="exportPaymentsCsv"><i class="fas fa-file-csv me-1"></i>Exporter CSV</button>
+                                    <button class="btn-outline-brown btn-sm" id="exportPaymentsJson"><i class="fas fa-file-export me-1"></i>Exporter JSON</button>
+                                </div>
+                            </div>
+                            <div id="paymentsContainer">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="preferences">
+                        <div class="profile-card">
+                            <h4 class="section-title">Préférences</h4>
+                            <!-- Contenu préférences -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>{% include "core/footer.html" %}</footer>
+</div>
+
+<!-- JavaScript pour la gestion de la modification -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Éléments
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const formActions = document.getElementById('formActions');
+    const profileForm = document.getElementById('profileForm');
+    
+    // Champs du formulaire
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
+    const phone = document.getElementById('phone');
+    const birthDate = document.getElementById('birthDate');
+    const gender = document.getElementById('gender');
+    
+    // Préférences de communication
+    const newsletter = document.getElementById('newsletter');
+    const promotions = document.getElementById('promotions');
+    const sms = document.getElementById('sms');
+    const securityAlerts = document.getElementById('securityAlerts');
+    
+    // Variables pour sauvegarder les valeurs originales
+    let originalValues = {};
+
+    // Activer l'édition
+    function enableEditing() {
+        // Sauvegarder les valeurs originales
+        originalValues = {
+            firstName: firstName.value,
+            lastName: lastName.value,
+            phone: phone.value,
+            birthDate: birthDate.value,
+            gender: gender.value,
+            newsletter: newsletter.checked,
+            promotions: promotions.checked,
+            sms: sms.checked,
+            securityAlerts: securityAlerts.checked
+        };
+        
+        // Activer les champs
+        firstName.disabled = false;
+        lastName.disabled = false;
+        phone.disabled = false;
+        birthDate.disabled = false;
+        gender.disabled = false;
+        
+        // Activer les préférences de communication
+        newsletter.disabled = false;
+        promotions.disabled = false;
+        sms.disabled = false;
+        securityAlerts.disabled = false;
+        
+        // Afficher les boutons d'action
+        formActions.classList.add('show');
+        
+        // Changer le bouton "Modifier"
+        editProfileBtn.innerHTML = '<i class="fas fa-pencil-alt me-1"></i>En cours de modification';
+        editProfileBtn.disabled = true;
+        editProfileBtn.style.opacity = '0.7';
+        
+        // Focus sur le premier champ
+        firstName.focus();
+    }
+
+    // Désactiver l'édition et restaurer les valeurs
+    function disableEditing() {
+        // Restaurer les valeurs originales
+        if (Object.keys(originalValues).length > 0) {
+            firstName.value = originalValues.firstName;
+            lastName.value = originalValues.lastName;
+            phone.value = originalValues.phone;
+            birthDate.value = originalValues.birthDate;
+            gender.value = originalValues.gender;
+            newsletter.checked = originalValues.newsletter;
+            promotions.checked = originalValues.promotions;
+            sms.checked = originalValues.sms;
+            securityAlerts.checked = originalValues.securityAlerts;
+        }
+        
+        // Désactiver les champs
+        firstName.disabled = true;
+        lastName.disabled = true;
+        phone.disabled = true;
+        birthDate.disabled = true;
+        gender.disabled = true;
+        
+        // Désactiver les préférences de communication
+        newsletter.disabled = true;
+        promotions.disabled = true;
+        sms.disabled = true;
+        securityAlerts.disabled = true;
+        
+        // Cacher les boutons d'action
+        formActions.classList.remove('show');
+        
+        // Restaurer le bouton "Modifier"
+        editProfileBtn.innerHTML = '<i class="fas fa-edit me-1"></i>Modifier';
+        editProfileBtn.disabled = false;
+        editProfileBtn.style.opacity = '1';
+    }
+
+    // Événements
+    editProfileBtn.addEventListener('click', enableEditing);
+    cancelEditBtn.addEventListener('click', disableEditing);
+    
+    // Empêcher la soumission du formulaire si on annule
+    profileForm.addEventListener('submit', function(e) {
+        // Le formulaire sera soumis normalement vers update_profile
+        // Les données seront traitées par Django
+    });
+
+    // Activation des tabs Bootstrap
+    var triggerTabList = [].slice.call(document.querySelectorAll('a[data-bs-toggle="tab"]'));
+    var ordersUrl = "{% url 'account_orders' %}";
+    var addressesUrl = "{% url 'account_addresses' %}";
+    var ordersLoaded = false;
+    var addressesLoaded = false;
+
+    async function loadOrders() {
+        if (ordersLoaded) return;
+        try {
+            const res = await fetch(ordersUrl + '?partial=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) throw new Error('Network response was not ok');
+            const html = await res.text();
+            document.getElementById('ordersContainer').innerHTML = html;
+            ordersLoaded = true;
+        } catch (e) {
+            document.getElementById('ordersContainer').innerHTML = '<div class="text-danger p-3">Erreur de chargement</div>';
+        }
+    }
+
+    async function loadAddresses() {
+        if (addressesLoaded) return;
+        try {
+            const res = await fetch(addressesUrl + '?partial=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) throw new Error('Network response was not ok');
+            const html = await res.text();
+            document.getElementById('addressesContainer').innerHTML = html;
+            addressesLoaded = true;
+        } catch (e) {
+            document.getElementById('addressesContainer').innerHTML = '<div class="text-danger p-3">Erreur de chargement</div>';
+        }
+    }
+
+    triggerTabList.forEach(function (triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl);
+        
+        triggerEl.addEventListener('click', function (event) {
+            event.preventDefault();
+            tabTrigger.show();
+            
+            // Mettre à jour l'état actif dans la sidebar
+            triggerTabList.forEach(function(el) {
+                el.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Annuler l'édition si on change d'onglet
+            if (formActions.classList.contains('show')) {
+                disableEditing();
+            }
+
+            // Charger dynamiquement
+            if (this.getAttribute('href') === '#orders') {
+                loadOrders();
+            }
+            if (this.getAttribute('href') === '#addresses') {
+                loadAddresses();
+            }
+            if (this.getAttribute('href') === '#security') {
+                loadSecurity();
+            }
+            if (this.getAttribute('href') === '#notifications') {
+                loadNotifications();
+            }
+        });
+    });
+
+    // Export buttons (global handlers)
+    var exportCsvBtn = document.getElementById('exportOrdersCsv');
+    var exportJsonBtn = document.getElementById('exportOrdersJson');
+    if (exportCsvBtn) exportCsvBtn.addEventListener('click', function(){ window.location = ordersUrl + '?export=csv'; });
+    if (exportJsonBtn) exportJsonBtn.addEventListener('click', function(){ window.location = ordersUrl + '?export=json'; });
+
+    var exportAddressesCsv = document.getElementById('exportAddressesCsv');
+    var exportAddressesJson = document.getElementById('exportAddressesJson');
+    if (exportAddressesCsv) exportAddressesCsv.addEventListener('click', function(){ window.location = addressesUrl + '?export=csv'; });
+    if (exportAddressesJson) exportAddressesJson.addEventListener('click', function(){ window.location = addressesUrl + '?export=json'; });
+
+    // Sécurité (chargement + actions)
+    var securityUrl = "{% url 'account_security' %}";
+    var securityKickUrl = "{% url 'account_security_kick' %}";
+    var securityLoaded = false;
+
+    async function loadSecurity() {
+        if (securityLoaded) return;
+        try {
+            const res = await fetch(securityUrl + '?partial=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) throw new Error('Network response was not ok');
+            const html = await res.text();
+            document.getElementById('securityContainer').innerHTML = html;
+            securityLoaded = true;
+        } catch (e) {
+            document.getElementById('securityContainer').innerHTML = '<div class="text-danger p-3">Erreur de chargement</div>';
+        }
+    }
+
+    // Event delegation pour déconnecter une session
+    document.addEventListener('click', async function (e) {
+        if (!e.target) return;
+        var target = e.target.closest('.session-kick');
+        if (!target) return;
+
+        var sessionKey = target.getAttribute('data-session-key');
+        if (!sessionKey) return;
+
+        // Confirmation simple
+        if (!confirm('Déconnecter cet appareil ?')) return;
+
+        // Récupérer csrf
+        function getCookie(name) {
+            var v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+            return v ? v[2] : null;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        try {
+            const form = new FormData();
+            form.append('session_key', sessionKey);
+
+            const res = await fetch(securityKickUrl, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                body: form
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Retirer l'item du DOM
+                var item = target.closest('.list-group-item');
+                if (item) item.remove();
+            } else {
+                alert('Erreur: ' + (data.error || 'unknown'));
+            }
+        } catch (err) {
+            alert('Erreur réseau');
+        }
+    });
+
+    // Paiements (chargement + export)
+    var paymentsUrl = "{% url 'account_payments' %}";
+    var paymentsLoaded = false;
+
+    async function loadPayments() {
+        if (paymentsLoaded) return;
+        try {
+            const res = await fetch(paymentsUrl + '?partial=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) throw new Error('Network response was not ok');
+            const html = await res.text();
+            document.getElementById('paymentsContainer').innerHTML = html;
+            paymentsLoaded = true;
+        } catch (e) {
+            document.getElementById('paymentsContainer').innerHTML = '<div class="text-danger p-3">Erreur de chargement</div>';
+        }
+    }
+
+    var exportPaymentsCsv = document.getElementById('exportPaymentsCsv');
+    var exportPaymentsJson = document.getElementById('exportPaymentsJson');
+    if (exportPaymentsCsv) exportPaymentsCsv.addEventListener('click', function(){ window.location = paymentsUrl + '?export=csv'; });
+    if (exportPaymentsJson) exportPaymentsJson.addEventListener('click', function(){ window.location = paymentsUrl + '?export=json'; });
+
+    // Notifications (chargement + actions + export)
+    var notificationsUrl = "{% url 'account_notifications' %}";
+    var notificationsActionUrl = "{% url 'account_notifications_action' %}";
+    var notificationsLoaded = false;
+
+    async function loadNotifications() {
+        if (notificationsLoaded) return;
+        try {
+            const res = await fetch(notificationsUrl + '?partial=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) throw new Error('Network response was not ok');
+            const html = await res.text();
+            document.getElementById('notificationsContainer').innerHTML = html;
+            notificationsLoaded = true;
+        } catch (e) {
+            document.getElementById('notificationsContainer').innerHTML = '<div class="text-danger p-3">Erreur de chargement</div>';
+        }
+    }
+
+    // Event delegation pour les actions notifications
+    document.addEventListener('click', async function (e) {
+        if (!e.target) return;
+        var markReadBtn = e.target.closest('.notif-mark-read');
+        var markUnreadBtn = e.target.closest('.notif-mark-unread');
+        var deleteBtn = e.target.closest('.notif-delete');
+        var markAllBtn = e.target.closest('#markAllReadBtn');
+        var clearReadBtn = e.target.closest('#clearReadBtn');
+
+        function getCookie(name) {
+            var v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+            return v ? v[2] : null;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        async function postAction(action, id) {
+            const form = new FormData();
+            form.append('action', action);
+            if (id !== undefined) form.append('id', id);
+            const res = await fetch(notificationsActionUrl, { method: 'POST', headers: { 'X-CSRFToken': csrftoken }, body: form });
+            return res.json();
+        }
+
+        if (markReadBtn) {
+            var id = markReadBtn.getAttribute('data-id');
+            if (!id) return;
+            const data = await postAction('mark_read', id);
+            if (data.success) {
+                var item = markReadBtn.closest('[data-notif-id]');
+                if (item) { item.classList.remove('fw-bold'); item.querySelector('.notif-mark-read')?.remove(); }
+            }
+            return;
+        }
+
+        if (markUnreadBtn) {
+            var id = markUnreadBtn.getAttribute('data-id');
+            if (!id) return;
+            const data = await postAction('mark_unread', id);
+            if (data.success) {
+                var item = markUnreadBtn.closest('[data-notif-id]');
+                if (item) { item.classList.add('fw-bold'); item.querySelector('.notif-mark-unread')?.remove(); }
+            }
+            return;
+        }
+
+        if (deleteBtn) {
+            if (!confirm('Supprimer cette notification ?')) return;
+            var id = deleteBtn.getAttribute('data-id');
+            const data = await postAction('delete', id);
+            if (data.success) {
+                var item = deleteBtn.closest('[data-notif-id]');
+                if (item) item.remove();
+            }
+            return;
+        }
+
+        if (markAllBtn) {
+            if (!confirm('Marquer toutes les notifications comme lues ?')) return;
+            const data = await postAction('mark_read_all');
+            if (data.success) {
+                notificationsLoaded = false; loadNotifications();
+            }
+            return;
+        }
+
+        if (clearReadBtn) {
+            if (!confirm('Supprimer toutes les notifications lues ?')) return;
+            const data = await postAction('delete_read');
+            if (data.success) {
+                notificationsLoaded = false; loadNotifications();
+            }
+            return;
+        }
+    });
+
+    var exportNotCsv = document.getElementById('exportNotificationsCsv');
+    var exportNotJson = document.getElementById('exportNotificationsJson');
+    if (exportNotCsv) exportNotCsv.addEventListener('click', function(){ window.location = notificationsUrl + '?export=csv'; });
+    if (exportNotJson) exportNotJson.addEventListener('click', function(){ window.location = notificationsUrl + '?export=json'; });
+});
+</script>
+
+{% endblock %}
