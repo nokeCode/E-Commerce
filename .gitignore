@@ -2,3 +2,5 @@
 *.mmdb
 /media/
 staticfiles/
+geoip/*.tar.gz
+geoip/*.sha256
