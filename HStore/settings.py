@@ -6,7 +6,7 @@ from pathlib import Path
 import os
 import dj_database_url
 from django.utils.translation import gettext_lazy as _
-
+import environ
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =====================================================
