@@ -15,7 +15,7 @@ Django==5.2.2
 django-allauth==65.13.0
 django-ipware==7.0.1
 executing==2.2.0
-environ==0.15.0
+environ==1.0
 Faker==37.3.0
 frozenlist==1.8.0
 geoip2==5.2.0
@@ -57,4 +57,5 @@ urllib3==2.5.0
 user-agents==2.2.0
 wcwidth==0.2.13
 yarl==1.22.0
+
 
