@@ -4,13 +4,19 @@ from django.conf import settings
 class GeoLocationMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        self.geo = GeoIP2()
+        self.geo = None
+        try:
+            self.geo = GeoIP2()
+        except Exception:
+            self.geo = None
+        self.test_ip = getattr(settings, 'GEOIP_TEST_IP', None)
         # En développement, tu peux utiliser une IP de test
         # Change cette IP pour tester différentes localisations
         self.test_ip = getattr(settings, 'GEOIP_TEST_IP', None)
 
     def __call__(self, request):
-
+        if self.geo is None:
+            return self.get_response(request)
         # Si déjà détecté → on ne refait rien
         if not request.session.get("country"):
             ip = self.get_client_ip(request)
