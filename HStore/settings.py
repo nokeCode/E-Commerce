@@ -6,14 +6,14 @@ from pathlib import Path
 import os
 import dj_database_url
 from django.utils.translation import gettext_lazy as _
-import environ
+from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =====================================================
 # SECURITY
 # =====================================================
-SECRET_KEY ='django-insecure-r8lo%v+^sddfe+q8nh3kqal&_%-c6k^4d_um43ujdip$#qz_#b'
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = ['*']
 
 
@@ -80,8 +80,9 @@ WSGI_APPLICATION = 'HStore.wsgi.application'
 # =====================================================
 # DATABASE (RENDER)
 # =====================================================
+DATABASE_URL = config("DATABASE_URL")
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    'default': dj_database_url.parse(DATABASE_URL)
 }
 
 
@@ -140,8 +141,8 @@ except:
         return val
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-SENDGRID_API_KEY = config("SENDGRID_API_KEY")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
+SENDGRID_API_KEY = config("SENDGRID_API_KEY", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="webmaster@localhost")
 
 
 # =====================================================
@@ -169,8 +170,8 @@ try:
     SOCIALACCOUNT_PROVIDERS = {
         "google": {
             "APP": {
-                "client_id": config("GOOGLE_CLIENT_ID"),
-                "secret": config("GOOGLE_CLIENT_SECRET"),
+                "client_id": config("GOOGLE_CLIENT_ID", default=""),
+                "secret": config("GOOGLE_CLIENT_SECRET", default=""),
                 "key": ""
             }
         }
@@ -189,6 +190,6 @@ GEOIP_TEST_IP = "185.102.113.0"
 # =====================================================
 # STRIPE
 # =====================================================
-STRIPE_PUBLIC_KEY = config("STRIPE_PUBLIC_KEY")
-STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY")
-STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET")
+STRIPE_PUBLIC_KEY = config("STRIPE_PUBLIC_KEY", default="")
+STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
