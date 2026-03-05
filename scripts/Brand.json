@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Zara",
+    "logo": "image/logo/zara.png",
+    "categories": ["Mode Femme", "Robes Femme", "Hauts Femme", "Pantalons Femme", "Jupes & Shorts Femme"]
+  },
+  {
+    "name": "Maje",
+    "logo": "image/logo/maje.png",
+    "categories": ["Mode Femme", "Robes Femme", "Hauts Femme"]
+  },
+  {
+    "name": "Sandro",
+    "logo": "image/logo/sandro.png",
+    "categories": ["Mode Femme", "Robes Femme", "Hauts Femme"]
+  },
+  {
+    "name": "Hugo Boss",
+    "logo": "image/logo/hugo-boss.png",
+    "categories": ["Mode Homme", "Chemises Homme", "Pantalons Homme", "Vestes Homme"]
+  },
+  {
+    "name": "Tommy Hilfiger",
+    "logo": "image/logo/tommy.png",
+    "categories": ["Mode Homme", "Pantalons Homme"]
+  },
+  {
+    "name": "Lacoste",
+    "logo": "image/logo/lacoste.png",
+    "categories": ["Mode Homme", "Chemises Homme", "T-shirts Homme"]
+  },
+  {
+    "name": "Petit Bateau",
+    "logo": "image/logo/petit-bateau.png",
+    "categories": ["Bebe (0-3 ans)", "Fille (4-14 ans)", "Garçon (4-14 ans)"]
+  },
+  {
+    "name": "Okaidi",
+    "logo": "image/logo/okaidi.png",
+    "categories": ["Mode Enfant", "Fille (4-14 ans)", "Bebe (0-3 ans)"]
+  },
+  {
+    "name": "Jacadi",
+    "logo": "image/logo/jacadi.png",
+    "categories": ["Garçon (4-14 ans)", "Fille (4-14 ans)"]
+  },
+  {
+    "name": "Nike",
+    "logo": "image/logo/nike.png",
+    "categories": ["Unisexe", "Sportswear Unisexe", "Accessoires Unisexe", "Maillots de bain Unisexe"]
+  },
+  {
+    "name": "Adidas",
+    "logo": "image/logo/adidas.png",
+    "categories": ["Unisexe", "Sportswear Unisexe", "Accessoires Unisexe", "Maillots de bain Unisexe"]
+  },
+  {
+    "name": "Levi's",
+    "logo": "image/logo/levis.png",
+    "categories": ["Pantalons Femme", "Jupes & Shorts Femme", "Mode Homme", "T-shirts Homme", "Pantalons Homme", "Accessoires Unisexe"]
+  }
+]

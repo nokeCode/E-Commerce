@@ -477,7 +477,7 @@
                                 <!-- Image produit -->
                                 <div class="product-image-container">
                                     {% if product.main_image %}
-                                        <img src="{% static product.main_image.image.url %}" 
+                                        <img src="{{ product.main_image.image.url }}" 
                                              alt="{{ product.name }}" 
                                              class="product-image">
                                     {% else %}

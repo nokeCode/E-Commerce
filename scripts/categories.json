@@ -1,0 +1,113 @@
+[
+  {
+    "name": "Mode Femme",
+    "slug": "mode-femme",
+    "icone": "fas fa-person-dress",
+    "description": "Collection complete de vêtements pour femme - robes, hauts, bas et ensembles"
+  },
+  {
+    "name": "Robes Femme",
+    "slug": "robes-femme",
+    "icone": "fas fa-person-dress",
+    "description": "Robes élégantes, d'ete, de soirée et casual pour femme"
+  },
+  {
+    "name": "Hauts Femme",
+    "slug": "hauts-femme",
+    "icone": "fas fa-shirt",
+    "description": "T-shirts, chemisiers, blouses et tops pour femme"
+  },
+  {
+    "name": "Pantalons Femme",
+    "slug": "pantalons-femme",
+    "icone": "fas fa-socks",
+    "description": "Jeans, leggings, pantalons tailleur et bas pour femme"
+  },
+  {
+    "name": "Jupes & Shorts Femme",
+    "slug": "jupes-shorts-femme",
+    "icone": "fas fa-shirt",
+    "description": "Jupes, shorts et bermudas pour femme"
+  },
+  
+  {
+    "name": "Mode Homme",
+    "slug": "mode-homme",
+    "icone": "fas fa-person",
+    "description": "Collection complete de vetements pour homme - chemises, pantalons et ensembles"
+  },
+  {
+    "name": "Chemises Homme",
+    "slug": "chemises-homme",
+    "icone": "fas fa-user-tie",
+    "description": "Chemises habillees, casual et decontractees pour homme"
+  },
+  {
+    "name": "T-shirts Homme",
+    "slug": "tshirts-homme",
+    "icone": "fas fa-shirt",
+    "description": "T-shirts basiques, graphiques et decontractes pour homme"
+  },
+  {
+    "name": "Pantalons Homme",
+    "slug": "pantalons-homme",
+    "icone": "fa-thin fa-pants",
+    "description": "Jeans, chinos et pantalons de costume pour homme"
+  },
+  {
+    "name": "Vestes Homme",
+    "slug": "vestes-homme",
+    "icone": "fas fa-user",
+    "description": "Blazers, vestes legeres et manteaux pour homme"
+  },
+
+  {
+    "name": "Mode Enfant",
+    "slug": "mode-enfant",
+    "icone": "fas fa-children",
+    "description": "Vetements pour enfants et bebes - filles et garçons"
+  },
+  {
+    "name": "Fille (4-14 ans)",
+    "slug": "fille-4-14-ans",
+    "icone": "fas fa-child-dress",
+    "description": "Vetements mode pour fillettes et adolescentes"
+  },
+  {
+    "name": "Garçon (4-14 ans)",
+    "slug": "garcon-4-14-ans",
+    "icone": "fas fa-child",
+    "description": "Vetements décontractés et habillés pour garçons"
+  },
+  {
+    "name": "Bebe (0-3 ans)",
+    "slug": "bebe-0-3-ans",
+    "icone": "fas fa-baby",
+    "description": "Vêtements et layettes pour nouveau-nés et tout-petits"
+  },
+
+  {
+    "name": "Unisexe",
+    "slug": "unisexe",
+    "icone": "fas fa-people-group",
+    "description": "Vêtements et accessoires pour tous les genres"
+  },
+  {
+    "name": "Sportswear Unisexe",
+    "slug": "sportswear-unisexe",
+    "icone": "fas fa-dumbbell",
+    "description": "Vêtements de sport adaptés à tous"
+  },
+  {
+    "name": "Maillots de bain Unisexe",
+    "slug": "maillots-bain-unisexe",
+    "icone": "fas fa-swimmer",
+    "description": "Maillots une pièce, shorts et accessoires de plage"
+  },
+  {
+    "name": "Accessoires Unisexe",
+    "slug": "accessoires-unisexe",
+    "icone": "far fa-gem",
+    "description": "Chapeaux, écharpes et ceintures pour tous"
+  }
+]
