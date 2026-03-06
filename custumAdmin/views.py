@@ -397,22 +397,12 @@ def product_add(request):
                 brand_slug = 'generic'
 
             for idx, file in enumerate(files):
-                is_main = (idx == 0)
-                filename = file.name
-                rel_dir = os.path.join('image', cat_slug, brand_slug)
-                rel_path = os.path.join(rel_dir, filename)
 
-                # Ensure directory exists in MEDIA_ROOT
-                full_dir = os.path.join(settings.MEDIA_ROOT, rel_dir)
-                os.makedirs(full_dir, exist_ok=True)
-
-                # Save file to storage (MEDIA_ROOT)
-                saved_path = default_storage.save(rel_path, file)
 
                 # Create ProductImage record pointing to saved path
-                img = ProductImage(product=product, is_main=is_main)
-                img.image.name = saved_path
-                img.save()
+                ProductImage(product=product, image=file, is_main=(idx == 0))
+               
+                
 
             from django.contrib import messages
             messages.success(request, f"Product '{name}' created successfully!")
