@@ -3,7 +3,7 @@ from django.utils.text import slugify
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
-from django.db import models
+from django.db import models, transaction
 from products.models import Brand, Category, Product, ProductImage
 from accounts.models.Users import Users
 from orders.models.Order import Order
@@ -364,48 +364,30 @@ def product_add(request):
                 slug = f"{original_slug}-{counter}"
                 counter += 1
 
-            # Create product
-            product = Product(
-                name=name,
-                slug=slug,
-                description=description,
-                price=float(price or 0),
-                stock=int(stock or 0),
-                category_id=category_id,
-                brand_id=brand_id if brand_id else None,
-            )
-            product.save()
+            with transaction.atomic():
+                # Create product
+                product = Product(
+                    name=name,
+                    slug=slug,
+                    description=description,
+                    price=float(price or 0),
+                    stock=int(stock or 0),
+                    category_id=category_id,
+                    brand_id=brand_id if brand_id else None,
+                )
+                product.save()
 
-            # Save images from file input into MEDIA_ROOT/image/<category_slug>/<brand_slug>/
-            from django.core.files.storage import default_storage
-            from django.conf import settings
+                files = request.FILES.getlist('images')
+                for idx, file in enumerate(files):
+                    ProductImage.objects.create(
+                        product=product,
+                        image=file,
+                        is_main=(idx == 0),
+                    )
 
-            files = request.FILES.getlist('images')
-            try:
-                cat = Category.objects.get(id=category_id)
-                cat_slug = slugify(cat.name)
-            except Exception:
-                cat_slug = 'uncategorized'
-
-            if brand_id:
-                try:
-                    br = Brand.objects.get(id=brand_id)
-                    brand_slug = slugify(br.name)
-                except Exception:
-                    brand_slug = 'generic'
-            else:
-                brand_slug = 'generic'
-
-            for idx, file in enumerate(files):
-
-
-                # Create ProductImage record pointing to saved path
-                img = ProductImage(product=product, image=file, is_main=(idx == 0))
-                img.save()
-
-            from django.contrib import messages
-            messages.success(request, f"Product '{name}' created successfully!")
-            return redirect(reverse('product_list'))
+                from django.contrib import messages
+                messages.success(request, f"Product '{name}' created successfully!")
+                return redirect(reverse('product_list'))
 
         except Exception as e:
             return render(request, "custumAdmin/add/product_add.html", {
@@ -495,16 +477,12 @@ def product_edit(request, id):
         # handle deleted images
         delete_ids = request.POST.getlist('delete_images')
         if delete_ids:
-            from django.conf import settings
             for img_id in delete_ids:
                 try:
                     img = ProductImage.objects.get(id=img_id, product=product)
-                    # delete file from storage
-                    if img.image and hasattr(img.image, 'path'):
-                        try:
-                            os.remove(img.image.path)
-                        except Exception:
-                            pass
+                    # Works with Cloudinary and local storage.
+                    if img.image:
+                        img.image.delete(save=False)
                     img.delete()
                 except ProductImage.DoesNotExist:
                     pass
@@ -517,41 +495,18 @@ def product_edit(request, id):
                 first.save()
 
         # handle new uploaded images
-        from django.core.files.storage import default_storage
-        from django.conf import settings
-
         files = request.FILES.getlist('images')
-        try:
-            cat = Category.objects.get(id=category_id)
-            cat_slug = slugify(cat.name)
-        except Exception:
-            cat_slug = 'uncategorized'
-
-        if brand_id:
-            try:
-                br = Brand.objects.get(id=brand_id)
-                brand_slug = slugify(br.name)
-            except Exception:
-                brand_slug = 'generic'
-        else:
-            brand_slug = 'generic'
 
         for idx, file in enumerate(files):
             # if no existing images remain, first new one becomes main
             is_main = False
             if not product.images.exists():
                 is_main = True
-            filename = file.name
-            rel_dir = os.path.join('image', cat_slug, brand_slug)
-            rel_path = os.path.join(rel_dir, filename)
-
-            full_dir = os.path.join(settings.MEDIA_ROOT, rel_dir)
-            os.makedirs(full_dir, exist_ok=True)
-            saved_path = default_storage.save(rel_path, file)
-
-            img = ProductImage(product=product, is_main=is_main)
-            img.image.name = saved_path
-            img.save()
+            ProductImage.objects.create(
+                product=product,
+                image=file,
+                is_main=is_main,
+            )
 
         from django.contrib import messages
         messages.success(request, f"Product '{product.name}' updated successfully!")
