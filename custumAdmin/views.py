@@ -400,9 +400,8 @@ def product_add(request):
 
 
                 # Create ProductImage record pointing to saved path
-                ProductImage(product=product, image=file, is_main=(idx == 0))
-               
-                
+                img = ProductImage(product=product, image=file, is_main=(idx == 0))
+                img.save()
 
             from django.contrib import messages
             messages.success(request, f"Product '{name}' created successfully!")
